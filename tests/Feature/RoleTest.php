@@ -58,6 +58,15 @@ class RoleTest extends TestCase
             ->getJson('/api/claims')
             ->assertOk()
             ->assertJsonPath('0.status', 'diproses');
+
+        $this->actingAs($admin)
+            ->patchJson('/api/claims/'.$claimId, ['status' => 'disetujui'])
+            ->assertOk()
+            ->assertJsonPath('status', 'disetujui');
+
+        $this->patchJson('/api/claims/'.$claimId, ['status' => 'selesai'])
+            ->assertOk()
+            ->assertJsonPath('status', 'selesai');
     }
 
     public function test_admin_manages_users_prices_and_the_rupiah_discount(): void

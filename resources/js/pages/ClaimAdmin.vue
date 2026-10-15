@@ -1,11 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { api } from '../api';
-import { claimStatuses, statusLabel } from '../claims';
+import { statusLabel } from '../claims';
 import { rupiah } from '../format';
 import { useToast } from '../toast';
 import AdminShell from '../components/AdminShell.vue';
-import AppSelect from '../components/AppSelect.vue';
+import ProductPhoto from '../components/ProductPhoto.vue';
 
 const { show } = useToast();
 const claims = ref([]);
@@ -49,25 +49,33 @@ async function updateStatus(claim, status) {
                             <th>Karyawan</th>
                             <th>Tanggal</th>
                             <th>Total</th>
-                            <th>Status</th>
+                            <th>Tindakan</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="claim in claims" :key="claim.id">
                             <td>
-                                <strong>{{ claim.number }}</strong>
-                                <small class="claim-mini">{{ claim.items.map((item) => `${item.name} × ${item.quantity}`).join(', ') }}</small>
+                                <div class="product-cell">
+                                    <div class="claim-photos">
+                                        <ProductPhoto v-for="(item, index) in claim.items" :key="`${claim.id}-${index}`" :src="item.image_url || ''" :alt="item.name" />
+                                    </div>
+                                    <div>
+                                        <strong>{{ claim.number }}</strong>
+                                        <small class="claim-mini">{{ claim.items.map((item) => `${item.name} × ${item.quantity}`).join(', ') }}</small>
+                                    </div>
+                                </div>
                             </td>
                             <td>{{ claim.user?.name }}<br><small>{{ claim.user?.team }}</small></td>
                             <td>{{ claim.submitted_label }}</td>
                             <td>{{ rupiah(claim.claim_total) }}</td>
                             <td>
-                                <AppSelect
-                                    compact
-                                    :model-value="claim.status"
-                                    :options="claimStatuses.map((status) => ({ value: status.id, label: status.label }))"
-                                    @update:model-value="updateStatus(claim, $event)"
-                                />
+                                <div class="claim-actions">
+                                    <span class="status" :class="{ off: claim.status === 'ditolak' }">{{ statusLabel(claim.status) }}</span>
+                                    <button v-if="claim.status === 'diajukan'" type="button" @click="updateStatus(claim, 'diproses')">Setujui pembelian</button>
+                                    <button v-if="claim.status === 'diproses'" type="button" @click="updateStatus(claim, 'disetujui')">Sudah dibayar</button>
+                                    <button v-if="claim.status === 'disetujui'" type="button" @click="updateStatus(claim, 'selesai')">Selesai</button>
+                                    <button v-if="claim.status === 'diajukan' || claim.status === 'diproses'" class="danger" type="button" @click="updateStatus(claim, 'ditolak')">Tolak</button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

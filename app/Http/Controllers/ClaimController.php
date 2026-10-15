@@ -19,7 +19,7 @@ class ClaimController extends Controller
     {
         $claims = Claim::query()
             ->where('user_id', $request->user()->id)
-            ->with('items')
+            ->with('items.product')
             ->latest('submitted_at')
             ->get()
             ->map(fn (Claim $claim) => $this->present($claim))
@@ -32,7 +32,7 @@ class ClaimController extends Controller
     public function adminIndex(): JsonResponse
     {
         $claims = Claim::query()
-            ->with(['items', 'user:id,name,email,team'])
+            ->with(['items.product', 'user:id,name,email,team'])
             ->latest('submitted_at')
             ->get()
             ->map(fn (Claim $claim) => $this->present($claim, true))
@@ -53,7 +53,7 @@ class ClaimController extends Controller
 
         $claim->update(['status' => $data['status']]);
 
-        return response()->json($this->present($claim->load(['items', 'user:id,name,email,team']), true));
+        return response()->json($this->present($claim->load(['items.product', 'user:id,name,email,team']), true));
     }
 
     public function store(SubmitClaim $claims, CartStore $cart, CartPresenter $presenter): JsonResponse
@@ -93,6 +93,7 @@ class ClaimController extends Controller
             'items' => $claim->items->map(fn (ClaimItem $item) => [
                 'name' => $item->product_name,
                 'quantity' => $item->quantity,
+                'image_url' => $item->product?->image_url,
                 'unit_retail_price' => $item->unit_retail_price,
                 'unit_claim_price' => $item->unit_claim_price,
             ])->values()->all(),

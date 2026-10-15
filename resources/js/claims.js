@@ -8,7 +8,7 @@ export const claimSteps = [
 export const goodsSteps = [
     { id: 'diajukan', label: 'Belum dibayar' },
     { id: 'diproses', label: 'Proses' },
-    { id: 'disetujui', label: 'Dikirim' },
+    { id: 'disetujui', label: 'Sudah dibayar' },
     { id: 'selesai', label: 'Selesai' },
 ];
 
@@ -18,7 +18,9 @@ export const claimStatuses = [
 ];
 
 export function statusLabel(status) {
-    return claimStatuses.find((item) => item.id === status)?.label ?? status;
+    return goodsSteps.find((item) => item.id === status)?.label
+        ?? claimStatuses.find((item) => item.id === status)?.label
+        ?? status;
 }
 
 export function stepState(status, index, steps = claimSteps) {

@@ -1,8 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { api } from '../api';
 import AppHeader from '../components/AppHeader.vue';
+import ProductPhoto from '../components/ProductPhoto.vue';
 import { goodsSteps, stepState } from '../claims';
+import { rupiah } from '../format';
 import { changePassword, user } from '../session';
 import { useToast } from '../toast';
 
@@ -15,6 +17,15 @@ const error = ref('');
 const currentPassword = ref('');
 const nextPassword = ref('');
 const confirmPassword = ref('');
+const goodsTab = ref('progres');
+const activeClaims = computed(() => claims.value.filter((claim) => claim.status !== 'selesai'));
+const historyRows = computed(() => claims.value
+    .filter((claim) => claim.status === 'selesai')
+    .flatMap((claim) => (claim.items.length ? claim.items : [null]).map((item, index) => ({
+        key: `${claim.id}-${index}`,
+        claim,
+        item,
+    }))));
 
 onMounted(async () => {
     try {
@@ -59,10 +70,45 @@ async function savePassword() {
                 </div>
             </div>
             <section class="goods-board">
-                <h2>Progres barang</h2>
+                <div class="goods-tabs">
+                    <button type="button" class="admin-tab" :class="{ active: goodsTab === 'progres' }" @click="goodsTab = 'progres'">Progres</button>
+                    <button type="button" class="admin-tab" :class="{ active: goodsTab === 'selesai' }" @click="goodsTab = 'selesai'">Selesai</button>
+                </div>
                 <p v-if="loadingClaims" class="empty-note">Memuat progres...</p>
                 <p v-else-if="claimsError" class="form-error">{{ claimsError }}</p>
-                <article v-else-if="claims.length === 0" class="claim-card">
+                <div v-else-if="goodsTab === 'selesai'" class="table-card">
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Barang</th>
+                                    <th>Nomor</th>
+                                    <th>Tanggal</th>
+                                    <th>Jumlah</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="historyRows.length === 0">
+                                    <td colspan="5">Belum ada histori.</td>
+                                </tr>
+                                <tr v-for="row in historyRows" :key="row.key">
+                                    <td>
+                                        <div class="product-cell">
+                                            <ProductPhoto :src="row.item?.image_url || ''" :alt="row.item?.name || row.claim.number" />
+                                            <span>{{ row.item?.name || row.claim.number }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ row.claim.number }}</td>
+                                    <td>{{ row.claim.submitted_label }}</td>
+                                    <td>{{ row.item?.quantity || '—' }}</td>
+                                    <td>{{ rupiah((row.item?.unit_claim_price || 0) * (row.item?.quantity || 0)) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <article v-else-if="activeClaims.length === 0" class="claim-card">
                     <div class="claim-card-head">
                         <div>
                             <strong>Belum ada barang</strong>
@@ -73,11 +119,17 @@ async function savePassword() {
                         <li v-for="step in goodsSteps" :key="step.id">{{ step.label }}</li>
                     </ol>
                 </article>
-                <article v-for="claim in claims" :key="claim.id" class="claim-card">
+                <template v-else>
+                <article v-for="claim in activeClaims" :key="claim.id" class="claim-card">
                     <div class="claim-card-head">
-                        <div>
-                            <strong>{{ claim.items.length ? claim.items.map((item) => `${item.name} × ${item.quantity}`).join(', ') : claim.number }}</strong>
-                            <small>{{ claim.number }} · {{ claim.submitted_label }}</small>
+                        <div class="claim-product">
+                            <div class="claim-photos">
+                                <ProductPhoto v-for="(item, index) in claim.items" :key="`${claim.id}-${index}`" :src="item.image_url || ''" :alt="item.name" />
+                            </div>
+                            <div>
+                                <strong>{{ claim.items.length ? claim.items.map((item) => `${item.name} × ${item.quantity}`).join(', ') : claim.number }}</strong>
+                                <small>{{ claim.number }} · {{ claim.submitted_label }}</small>
+                            </div>
                         </div>
                         <span v-if="claim.status === 'ditolak'" class="status off">Ditolak</span>
                     </div>
@@ -87,6 +139,7 @@ async function savePassword() {
                         </li>
                     </ol>
                 </article>
+                </template>
             </section>
             <section class="profile-card">
                 <div class="profile-identity">
