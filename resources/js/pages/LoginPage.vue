@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { login } from '../session';
 
@@ -11,10 +11,25 @@ const remember = ref(false);
 const showPassword = ref(false);
 const error = ref('');
 const submitting = ref(false);
-const sheetOffset = ref(0);
+const stageRef = ref(null);
+const sheetHeight = ref(null);
 const dragging = ref(false);
+const sheetStyle = computed(() => (sheetHeight.value == null ? {} : { '--sheet-h': `${sheetHeight.value}px` }));
 let dragOrigin = 0;
-let offsetOrigin = 0;
+let heightOrigin = 0;
+let dragMin = 0;
+let dragMax = 0;
+
+function sheetBounds() {
+    const stage = stageRef.value;
+    const screen = stage?.parentElement?.clientHeight || window.innerHeight;
+    const content = stage?.querySelector('.login-sheet-body')?.offsetHeight || 0;
+
+    return {
+        min: Math.min(content, screen),
+        max: screen,
+    };
+}
 
 function startDrag(event) {
     if (!window.matchMedia('(max-width: 900px)').matches) {
@@ -31,9 +46,12 @@ function startDrag(event) {
         return;
     }
 
+    const bounds = sheetBounds();
     dragging.value = true;
     dragOrigin = event.clientY;
-    offsetOrigin = sheetOffset.value;
+    heightOrigin = sheetHeight.value ?? stageRef.value?.offsetHeight ?? bounds.min;
+    dragMin = bounds.min;
+    dragMax = bounds.max;
     window.addEventListener('pointermove', moveDrag);
     window.addEventListener('pointerup', endDrag);
     window.addEventListener('pointercancel', endDrag);
@@ -44,8 +62,8 @@ function moveDrag(event) {
         return;
     }
 
-    const next = offsetOrigin + event.clientY - dragOrigin;
-    sheetOffset.value = Math.min(280, Math.max(-160, next));
+    const next = heightOrigin + dragOrigin - event.clientY;
+    sheetHeight.value = Math.round(Math.min(dragMax, Math.max(dragMin, next)));
 }
 
 function endDrag() {
@@ -53,9 +71,32 @@ function endDrag() {
     window.removeEventListener('pointermove', moveDrag);
     window.removeEventListener('pointerup', endDrag);
     window.removeEventListener('pointercancel', endDrag);
+
+    if (sheetHeight.value == null) {
+        return;
+    }
+
+    const { min } = sheetBounds();
+
+    if (sheetHeight.value <= min + 8) {
+        sheetHeight.value = null;
+    }
 }
 
-onBeforeUnmount(endDrag);
+function fitSheet() {
+    if (sheetHeight.value == null || !window.matchMedia('(max-width: 900px)').matches) {
+        return;
+    }
+
+    const { min, max } = sheetBounds();
+    sheetHeight.value = Math.min(max, Math.max(min, sheetHeight.value));
+}
+
+onMounted(() => window.addEventListener('resize', fitSheet));
+onBeforeUnmount(() => {
+    endDrag();
+    window.removeEventListener('resize', fitSheet);
+});
 const collage = [
     'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=500&h=500&q=70',
     'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=500&h=500&q=70',
@@ -145,11 +186,13 @@ async function submit() {
             <p class="login-footer">Claimly untuk karyawan</p>
         </section>
         <div
+            ref="stageRef"
             class="login-stage"
             :class="{ dragging }"
-            :style="{ '--sheet-y': `${sheetOffset}px` }"
+            :style="sheetStyle"
             @pointerdown="startDrag"
         >
+            <div class="login-sheet-body">
             <div class="login-sheet-handle" aria-hidden="true"></div>
             <form class="login-card" @submit.prevent="submit">
                 <h1>Selamat datang</h1>
@@ -180,6 +223,7 @@ async function submit() {
                 <button class="login-submit" type="submit" :disabled="submitting">{{ submitting ? 'Memeriksa...' : 'Masuk' }}</button>
             </form>
             <p class="login-footer login-footer-sheet">Claimly untuk karyawan</p>
+            </div>
         </div>
     </div>
 </template>
