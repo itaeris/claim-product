@@ -129,6 +129,32 @@ header {
 .profile-dropdown button:hover, .profile-dropdown a:hover { background: #f3f6f3; }
 .profile-dropdown button.danger { color: #9a4332; }
 .profile-dropdown button.danger:hover { background: #f8efec; }
+.goods-board { margin-top: 22px; }
+.goods-board > h2 { font-family: Manrope, sans-serif; font-size: 18px; margin: 0 0 12px; }
+.goods-board .claim-card + .claim-card { margin-top: 12px; }
+.goods-track {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    list-style: none; margin: 22px 0 4px; padding: 0;
+}
+.goods-track li {
+    position: relative; text-align: center; color: var(--muted);
+    font-size: 13px; font-weight: 700; padding-top: 28px;
+}
+.goods-track li:before {
+    content: ""; position: absolute; top: 0; left: 50%; z-index: 1;
+    width: 16px; height: 16px; margin-left: -8px; border-radius: 50%;
+    background: white; border: 2px solid #d5ddd6;
+}
+.goods-track li:after {
+    content: ""; position: absolute; top: 7px; left: 50%; z-index: 0;
+    width: 100%; height: 2px; background: #e3e8e4;
+}
+.goods-track li:last-child:after { display: none; }
+.goods-track li.done, .goods-track li.current { color: var(--green); }
+.goods-track li.done:before, .goods-track li.current:before { background: var(--green); border-color: var(--green); }
+.goods-track li.done:after { background: var(--green); }
+.goods-track li.rejected { color: #9a4332; }
+.goods-track li.rejected:before { background: #e7c7bf; border-color: #e7c7bf; }
 .profile-card {
     width: min(480px, 100%); margin-top: 18px; background: white;
     border: 1px solid var(--line); border-radius: 18px; padding: 22px;

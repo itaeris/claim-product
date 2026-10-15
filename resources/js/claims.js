@@ -5,6 +5,13 @@ export const claimSteps = [
     { id: 'selesai', label: 'Selesai' },
 ];
 
+export const goodsSteps = [
+    { id: 'diajukan', label: 'Belum dibayar' },
+    { id: 'diproses', label: 'Proses' },
+    { id: 'disetujui', label: 'Dikirim' },
+    { id: 'selesai', label: 'Selesai' },
+];
+
 export const claimStatuses = [
     ...claimSteps,
     { id: 'ditolak', label: 'Ditolak' },
@@ -14,12 +21,12 @@ export function statusLabel(status) {
     return claimStatuses.find((item) => item.id === status)?.label ?? status;
 }
 
-export function stepState(status, index) {
+export function stepState(status, index, steps = claimSteps) {
     if (status === 'ditolak') {
         return 'rejected';
     }
 
-    const current = claimSteps.findIndex((step) => step.id === status);
+    const current = steps.findIndex((step) => step.id === status);
 
     if (index < current) {
         return 'done';
