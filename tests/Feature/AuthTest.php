@@ -46,6 +46,50 @@ class AuthTest extends TestCase
         $this->getJson('/api/catalog')->assertUnauthorized();
     }
 
+    public function test_employees_can_change_their_password(): void
+    {
+        $this->patchJson('/api/password', [
+            'current_password' => 'password',
+            'password' => 'password-baru',
+            'password_confirmation' => 'password-baru',
+        ])->assertUnauthorized();
+
+        $this->postJson('/login', [
+            'email' => 'dina@claimly.test',
+            'password' => 'password',
+        ])->assertOk();
+
+        $this->patchJson('/api/password', [
+            'current_password' => 'salah',
+            'password' => 'password-baru',
+            'password_confirmation' => 'password-baru',
+        ])->assertUnprocessable()->assertJsonValidationErrors('current_password');
+
+        $this->patchJson('/api/password', [
+            'current_password' => 'password',
+            'password' => 'password-baru',
+            'password_confirmation' => 'tidak-sama',
+        ])->assertUnprocessable()->assertJsonValidationErrors('password');
+
+        $this->patchJson('/api/password', [
+            'current_password' => 'password',
+            'password' => 'password-baru',
+            'password_confirmation' => 'password-baru',
+        ])->assertOk();
+
+        $this->postJson('/logout')->assertOk();
+
+        $this->postJson('/login', [
+            'email' => 'dina@claimly.test',
+            'password' => 'password',
+        ])->assertUnprocessable();
+
+        $this->postJson('/login', [
+            'email' => 'dina@claimly.test',
+            'password' => 'password-baru',
+        ])->assertOk()->assertJsonPath('user.name', 'Dina K.');
+    }
+
     public function test_non_admins_cannot_manage_the_catalog(): void
     {
         $employee = User::factory()->create(['is_admin' => false]);

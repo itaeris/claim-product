@@ -16,6 +16,7 @@ Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth'
 
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('/me', [SessionController::class, 'show']);
+    Route::patch('/password', [SessionController::class, 'updatePassword']);
     Route::get('/catalog', [CatalogController::class, 'index']);
     Route::get('/cart', [CartController::class, 'show']);
     Route::post('/cart/items', [CartController::class, 'store']);

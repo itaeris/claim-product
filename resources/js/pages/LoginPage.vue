@@ -198,17 +198,13 @@ async function submit() {
                 <h1>Selamat datang</h1>
                 <p>Masuk untuk melanjutkan ke Claimly.</p>
                 <label class="login-field">
-                    <span>Email</span>
                     <div class="login-control">
-                        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                        <input v-model="email" type="email" autocomplete="username" required placeholder="nama@perusahaan.com">
+                        <input v-model="email" type="email" autocomplete="username" required placeholder="nama@perusahaan.com" aria-label="Email">
                     </div>
                 </label>
                 <label class="login-field">
-                    <span>Password</span>
                     <div class="login-control">
-                        <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                        <input v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required placeholder="Password">
+                        <input v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required placeholder="Masukkan password" aria-label="Password">
                         <button type="button" :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'" @click="showPassword = !showPassword">
                             <svg v-if="showPassword" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M10.6 10.6A2 2 0 0 0 12 14a2 2 0 0 0 1.4-.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9.9 5.2A9.8 9.8 0 0 1 12 5c5.5 0 9 4.5 9.5 7-.3 1.4-1.2 3-2.6 4.3M6.1 6.7C4.2 8 3 10 2.5 12c.5 2.5 4 7 9.5 7 1.3 0 2.5-.3 3.6-.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
                             <svg v-else viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>

@@ -42,6 +42,10 @@ export async function login(payload) {
     return data.user;
 }
 
+export async function changePassword(payload) {
+    return api.patch('/api/password', payload);
+}
+
 export async function logout() {
     const data = await api.post('/logout');
     setCsrf(data.csrf);
