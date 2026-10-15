@@ -13,7 +13,7 @@ export async function loadSession() {
 
     pending ??= api.get('/api/me')
         .then((data) => {
-            user.value = data;
+            user.value = data?.email ? data : null;
             sessionReady.value = true;
         })
         .catch((error) => {

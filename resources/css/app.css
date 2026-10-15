@@ -36,7 +36,7 @@ body {
     overflow: hidden;
     color: var(--ink);
     background: #fbfbf8;
-    font-family: "DM Sans", sans-serif;
+    font-family: Poppins, sans-serif;
     -webkit-font-smoothing: antialiased;
 }
 button, input { font: inherit; }
@@ -77,7 +77,7 @@ header {
     box-shadow: 0 8px 18px rgba(23,79,59,.2);
 }
 .brandmark-logo svg { width: 23px; }
-.brandmark-name { font-family: Manrope, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
+.brandmark-name { font-family: Poppins, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
 .brandmark-name span { color: var(--green-2); }
 .header-title { font-size: 14px; color: var(--muted); margin-left: 16px; padding-left: 20px; border-left: 1px solid var(--line); }
 .header-actions { display: flex; align-items: center; gap: 10px; }
@@ -164,7 +164,7 @@ header {
 .profile-identity { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .profile-identity strong { display: block; font-size: 16px; }
 .profile-identity small { display: block; color: var(--muted); font-size: 13px; }
-.profile-card h2 { font-family: Manrope, sans-serif; font-size: 18px; margin: 18px 0 0; }
+.profile-card h2 { font-family: Poppins, sans-serif; font-size: 18px; margin: 18px 0 0; }
 .profile-card form > p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .password-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 
@@ -204,7 +204,7 @@ main { padding: 24px 28px 32px; min-width: 0; min-height: 0; overflow: auto; }
 .hero-copy { position: relative; z-index: 2; max-width: 620px; }
 .eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--green-2); font-weight: 700; }
 .eyebrow:before { content: ""; width: 20px; height: 1px; background: var(--green-2); }
-h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter-spacing: -1.5px; line-height: 1.08; margin: 13px 0 10px; }
+h1 { font-family: Poppins, sans-serif; font-size: clamp(28px, 3vw, 42px); letter-spacing: -1.5px; line-height: 1.08; margin: 13px 0 10px; }
 .hero p { margin: 0; color: #65736b; font-size: 14px; }
 .hero-visual { width: 260px; align-self: stretch; position: relative; }
 .hero-bag {
@@ -213,12 +213,12 @@ h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
     box-shadow: -20px 20px 35px rgba(23,79,59,.2);
 }
 .hero-bag:before { content:""; position:absolute; width:50px; height:35px; border:5px solid var(--green); border-bottom:0; border-radius:28px 28px 0 0; top:-29px; left:23px; }
-.hero-bag:after { content:"C"; color:#dbe7da; font-family:Manrope,sans-serif; font-weight:800; font-size:30px; position:absolute; inset:0; display:grid; place-items:center; }
+.hero-bag:after { content:"C"; color:#dbe7da; font-family:Poppins,sans-serif; font-weight:800; font-size:30px; position:absolute; inset:0; display:grid; place-items:center; }
 .hero-bottle { position: absolute; width: 42px; height: 112px; border-radius: 14px 14px 9px 9px; background: #f7c0ad; right: 142px; bottom: -4px; transform: rotate(-10deg); box-shadow: -12px 14px 25px rgba(91,73,53,.12); }
 .hero-bottle:before { content:""; position:absolute; width:24px; height:19px; background:#f7c0ad; top:-15px; left:9px; border-radius:4px 4px 0 0; }
 
 .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 30px; }
-.toolbar h2 { font-family: Manrope, sans-serif; font-size: 22px; letter-spacing: -.5px; margin: 0 0 4px; }
+.toolbar h2 { font-family: Poppins, sans-serif; font-size: 22px; letter-spacing: -.5px; margin: 0 0 4px; }
 .toolbar p { margin: 0; font-size: 13px; color: var(--muted); }
 .search {
     width: 280px; height: 44px; background: white; border: 1px solid var(--line); border-radius: 12px;
@@ -238,7 +238,7 @@ h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
 .brand-tab.active { border-color: var(--green); background: var(--green); color: white; box-shadow: 0 10px 24px rgba(23,79,59,.15); }
 .brand-icon {
     flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
-    font-family: Manrope; font-weight: 800; font-size: 11px; color: var(--green);
+    font-family: Poppins, sans-serif; font-weight: 800; font-size: 11px; color: var(--green);
 }
 .brand-icon img { display: block; width: auto; height: auto; max-width: 108px; max-height: 20px; object-fit: contain; }
 .active .brand-icon { color: white; }
@@ -275,7 +275,7 @@ h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
 .product-name { margin: 7px 0 12px; height: 38px; font-size: 14px; font-weight: 600; line-height: 1.35; overflow: hidden; }
 .price-row { display: flex; align-items: end; justify-content: space-between; gap: 8px; }
 .price small { display: block; text-decoration: line-through; color: #9ca6a1; font-size: 10px; }
-.price strong { display: block; font-family: Manrope; font-size: 15px; color: var(--green); margin-top: 2px; }
+.price strong { display: block; font-family: Poppins, sans-serif; font-size: 15px; color: var(--green); margin-top: 2px; }
 .add-btn {
     border: 0; border-radius: 10px; background: #e7efe8; color: var(--green); width: 36px; height: 36px;
     font-size: 21px; cursor: pointer; display: grid; place-items: center; transition: .2s;
@@ -292,7 +292,7 @@ h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
 }
 .preview-photo { position: relative; aspect-ratio: 1; width: 100%; align-self: start; background: #eff1ed; overflow: hidden; }
 .preview-body { position: relative; padding: 28px 28px 24px; overflow: auto; }
-.preview-body h2 { font-family: Manrope, sans-serif; font-size: 28px; letter-spacing: -.8px; line-height: 1.15; margin: 8px 36px 8px 0; }
+.preview-body h2 { font-family: Poppins, sans-serif; font-size: 28px; letter-spacing: -.8px; line-height: 1.15; margin: 8px 36px 8px 0; }
 .preview-brand { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
 .preview-close {
     position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border: 0; border-radius: 50%;
@@ -302,13 +302,13 @@ h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
 .preview-details div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid #eef0ed; }
 .preview-details dt { color: var(--muted); font-size: 13px; }
 .preview-details dd { margin: 0; font-weight: 700; font-size: 14px; text-align: right; }
-.preview-claim dd { font-family: Manrope, sans-serif; font-size: 20px; color: var(--green); }
+.preview-claim dd { font-family: Poppins, sans-serif; font-size: 20px; color: var(--green); }
 .preview-add { margin-top: 18px; }
 .empty { grid-column: 1/-1; padding: 50px; text-align: center; color: var(--muted); background: white; border-radius: 16px; border: 1px dashed var(--line); }
 .loading-note { margin-top: 22px; }
 
 .claim-head { display: flex; justify-content: space-between; align-items: center; }
-.claim-head h2 { font-family: Manrope; font-size: 19px; margin: 0; letter-spacing: -.4px; }
+.claim-head h2 { font-family: Poppins, sans-serif; font-size: 19px; margin: 0; letter-spacing: -.4px; }
 .claim-count { width: 27px; height: 27px; border-radius: 50%; background: var(--mint); display: grid; place-items:center; font-size: 12px; font-weight: 700; color: var(--green); }
 .period { margin-top: 18px; background: #f6f7f4; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
 .period svg { width: 18px; color: var(--green-2); }
@@ -334,7 +334,7 @@ h1 { font-family: Manrope, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
 .saving { color: var(--green-2) !important; }
 .total { padding-top:13px; margin-top:13px; border-top:1px dashed #d9ded9; align-items:end; }
 .total span { color:var(--ink); font-weight:600; }
-.total strong { font-family:Manrope; font-size:20px; color:var(--green); }
+.total strong { font-family: Poppins, sans-serif; font-size:20px; color:var(--green); }
 .claim-btn {
     border:0; width:100%; height:48px; border-radius:12px; color:white; background:var(--green);
     font-weight:700; font-size:13px; cursor:pointer; margin-top:18px; box-shadow:0 10px 20px rgba(23,79,59,.18);
@@ -390,19 +390,17 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 .login-hero-copy > p:last-of-type { margin: 16px 0 0; max-width: 380px; color: rgba(255,255,255,.72); font-size: 15px; line-height: 1.55; }
 .login-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
 .login-pills span {
-    border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.08); color: white;
-    border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 600;
-    display: inline-flex; align-items: center; gap: 0;
+    height: 42px; padding: 0 14px; border-radius: 999px; background: white;
+    display: inline-flex; align-items: center; justify-content: center;
 }
-.login-pills svg { display: none; }
-.login-pills em { font-style: normal; }
+.login-pills img { height: 16px; width: auto; display: block; }
 .login-footer { margin: 0; color: rgba(255,255,255,.55); font-size: 12px; }
 .login-footer-sheet { display: none; }
 .login-sheet-handle { display: none; }
 .login-stage { min-width: 0; display: grid; place-items: center; padding: 32px 24px; overflow: auto; }
 .login-sheet-body { width: min(420px, 100%); }
 .login-card { width: 100%; background: transparent; border-radius: 0; padding: 32px 28px 28px; box-shadow: none; }
-.login-card h1 { font-family: Manrope, sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; margin: 0; }
+.login-card h1 { font-family: Poppins, sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; margin: 0; }
 .login-card > p { margin: 8px 0 0; color: #8b978f; font-size: 14px; line-height: 1.45; }
 .login-field { display: flex; flex-direction: column; margin-top: 14px; }
 .login-field:first-of-type { margin-top: 28px; }
@@ -416,8 +414,17 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 .login-control input::placeholder { color: #9aa59e; }
 .login-control button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: #8b978f; display: grid; place-items: center; cursor: pointer; }
 .login-control button:hover { background: #e7ece8; color: var(--ink); }
-.login-remember { display: flex; align-items: center; gap: 8px; margin-top: 16px; color: #5f6d66; font-size: 13px; }
-.login-remember input { width: 16px; height: 16px; accent-color: var(--green); }
+.login-remember { display: flex; align-items: center; gap: 8px; margin-top: 16px; color: #5f6d66; font-size: 13px; cursor: pointer; }
+.login-remember input, .check input {
+    appearance: none; width: 18px; height: 18px; margin: 0; flex: 0 0 auto; cursor: pointer;
+    border: 1.5px solid #c5cfc8; border-radius: 6px; background: white;
+    display: grid; place-content: center;
+}
+.login-remember input:checked, .check input:checked {
+    background: var(--green) center / 12px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.4 8.2 6.3 11.2 12.6 4.6' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    border-color: var(--green);
+}
+.login-remember input:focus-visible, .check input:focus-visible { outline: 2px solid rgba(23, 79, 59, .35); outline-offset: 2px; }
 .login-submit {
     width: 100%; height: 52px; margin-top: 22px; border: 0; border-radius: 999px; background: var(--green); color: white;
     font-weight: 700; font-size: 15px; cursor: pointer;
@@ -457,7 +464,7 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 }
 .app-select-menu button:hover, .app-select-menu button.active { background: var(--mint); color: var(--green); }
 .check { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #5f6d66; }
-.check input { width: 16px; height: 16px; accent-color: var(--green); }
+.check input { cursor: pointer; }
 .form-error { color: #9a4332; font-size: 13px; margin: 12px 0 0; }
 
 .admin-main { flex: 1; min-height: 0; overflow: auto; padding: 24px 28px 32px; }
@@ -493,7 +500,7 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 .claim-photos { display: flex; gap: 6px; flex: 0 0 auto; }
 .claim-photos img, .claim-photos .photo-placeholder { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; }
 .claim-photos .photo-placeholder svg { width: 22px; height: 22px; }
-.claim-card-head strong, .claim-card-total strong { font-family: Manrope, sans-serif; }
+.claim-card-head strong, .claim-card-total strong { font-family: Poppins, sans-serif; }
 .claim-card-head small, .claim-mini { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
 .progress-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; list-style: none; margin: 16px 0; padding: 0; }
 .progress-steps li { height: 8px; border-radius: 99px; background: #e7ebe7; position: relative; }
@@ -527,7 +534,7 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 .claim-actions button.danger { background: #f8efec; color: #9a4332; }
 .row-actions button.danger { background: #f8efec; color: #9a4332; }
 .editor { padding: 18px; }
-.editor h2 { font-family: Manrope, sans-serif; font-size: 18px; margin: 0; }
+.editor h2 { font-family: Poppins, sans-serif; font-size: 18px; margin: 0; }
 .editor-actions { display: flex; gap: 8px; margin-top: 16px; }
 
 @media (max-width: 1050px) {
@@ -545,10 +552,9 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
     .login-hero-copy { display: flex; flex-direction: column; align-items: center; }
     .login-greeting { margin-bottom: 8px; }
     .login-hero h1 { font-size: 28px; letter-spacing: -1px; }
-    .login-pills { justify-content: center; gap: 12px; margin-top: 16px; }
-    .login-pills span { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
-    .login-pills svg { display: block; width: 18px; height: 18px; }
-    .login-pills em { display: none; }
+    .login-pills { justify-content: center; gap: 8px; margin-top: 16px; }
+    .login-pills span { height: 36px; padding: 0 12px; }
+    .login-pills img { height: 13px; }
     .login-stage {
         position: absolute; left: 0; right: 0; bottom: 0; top: auto; height: var(--sheet-h, auto); max-height: 100%;
         margin: 0; padding: 0; background: #fff; border-radius: 28px 28px 0 0; z-index: 2;

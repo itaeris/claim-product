@@ -1,6 +1,7 @@
 <script setup>
 import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import BrandMark from './BrandMark.vue';
 import { logout, user } from '../session';
 
 const route = useRoute();
@@ -70,11 +71,10 @@ async function onLogout() {
         <div class="brandmark">
             <RouterLink to="/" class="brandmark">
                 <div class="brandmark-logo">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M6 12.5 10.2 17 18 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 5.5h15v14h-15z" stroke="currentColor" stroke-width="1.5" rx="3"/></svg>
+                    <BrandMark />
                 </div>
-                <div class="brandmark-name">claim<span>ly</span></div>
+                <div class="brandmark-name">Product Claim</div>
             </RouterLink>
-            <div class="header-title">Employee Product Claim</div>
         </div>
         <div class="header-actions">
             <button v-if="claimCart" class="icon-btn cart-btn" type="button" aria-label="Keranjang klaim" data-tooltip="Keranjang klaim" @click="claimCart.openCart()">

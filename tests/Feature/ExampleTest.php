@@ -15,7 +15,7 @@ class ExampleTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Claimly', false)
+            ->assertSee('Product Claim', false)
             ->assertSee('id="app"', false);
     }
 }

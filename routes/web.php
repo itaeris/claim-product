@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:10,1');
 Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth');
+Route::get('/api/me', [SessionController::class, 'show']);
 
 Route::middleware('auth')->prefix('api')->group(function () {
-    Route::get('/me', [SessionController::class, 'show']);
     Route::patch('/password', [SessionController::class, 'updatePassword']);
     Route::get('/catalog', [CatalogController::class, 'index']);
     Route::get('/cart', [CartController::class, 'show']);

@@ -1,4 +1,4 @@
-# Claimly
+# Product Claim
 
 Aplikasi klaim produk karyawan. User memilih produk, mengajukan klaim, dan melihat progres. Admin mengelola katalog, harga, diskon, user, dan status klaim. Semua nominal dalam Rupiah.
 
@@ -48,10 +48,12 @@ REDIS_PORT=6379
 
 Password kedua akun ini `password`.
 
-| Email | Peran |
-| --- | --- |
-| aeris@claimly.test | Admin |
-| dina@claimly.test | User |
+
+| Email                                           | Peran |
+| ----------------------------------------------- | ----- |
+| [aeris@claimly.test](mailto:aeris@claimly.test) | Admin |
+| [dina@claimly.test](mailto:dina@claimly.test)   | User  |
+
 
 Seeder juga mengisi tiga brand (Aeris Beauté, From This Island, KIN + ALLY), produknya, dan periode Oktober 2026 dengan diskon 30%.
 
@@ -61,17 +63,21 @@ User bisa membuka katalog, menaruh produk di keranjang, mengajukan klaim, dan me
 
 Halaman admin yang mengikuti brand (produk, kategori, harga, diskon) memakai kartu brand di atas filter. User dan klaim bersifat global.
 
-| Halaman | Siapa |
-| --- | --- |
-| `/login` | Tamu |
-| `/` | Katalog dan keranjang |
-| `/progres` | Progres klaim sendiri |
-| `/kelola/produk` | Admin |
-| `/kelola/kategori` | Admin |
-| `/kelola/harga` | Admin |
-| `/kelola/diskon` | Admin |
-| `/kelola/user` | Admin |
-| `/kelola/klaim` | Admin |
+
+| Halaman            | Siapa                 |
+| ------------------ | --------------------- |
+| `/login`           | Tamu                  |
+| `/`                | Katalog dan keranjang |
+| `/progres`         | Progres klaim sendiri |
+| `/kelola/produk`   | Admin                 |
+| `/kelola/kategori` | Admin                 |
+| `/kelola/harga`    | Admin                 |
+| `/kelola/diskon`   | Admin                 |
+| `/kelola/user`     | Admin                 |
+| `/kelola/klaim`    | Admin                 |
+
+
+
 
 ## Klaim
 
@@ -88,3 +94,4 @@ Tes memakai SQLite di memori, jadi MySQL dan Redis tidak perlu hidup.
 ```sh
 php artisan test
 ```
+

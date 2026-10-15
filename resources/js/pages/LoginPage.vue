@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import BrandMark from '../components/BrandMark.vue';
 import { login } from '../session';
 
 const route = useRoute();
@@ -9,6 +10,11 @@ const email = ref('');
 const password = ref('');
 const remember = ref(false);
 const showPassword = ref(false);
+const brandMarks = [
+    { name: 'AERIS', src: '/logo-brand/marks/aeris.png' },
+    { name: 'FTI', src: '/logo-brand/marks/fti.png' },
+    { name: 'Kinandally', src: '/logo-brand/marks/kin.png' },
+];
 const error = ref('');
 const submitting = ref(false);
 const stageRef = ref(null);
@@ -153,11 +159,10 @@ async function submit() {
             </div>
             <div class="brandmark">
                 <div class="brandmark-logo">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M6 12.5 10.2 17 18 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 5.5h15v14h-15z" stroke="currentColor" stroke-width="1.5" rx="3"/></svg>
+                    <BrandMark />
                 </div>
                 <div>
-                    <div class="brandmark-name">claim<span>ly</span></div>
-                    <small>Employee Product Claim</small>
+                    <div class="brandmark-name">Product Claim</div>
                 </div>
             </div>
             <div class="login-hero-copy">
@@ -165,25 +170,12 @@ async function submit() {
                 <h1>Katalog klaim<br><span>khusus untuk kamu.</span></h1>
                 <p>Pilih produk, ajukan klaim, dan pantau progres dalam satu tempat.</p>
                 <div class="login-pills">
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/></svg>
-                        <em>Katalog</em>
-                    </span>
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M6 8h12l-1 11H7L6 8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                        <em>Keranjang</em>
-                    </span>
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v4.5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                        <em>Progres</em>
-                    </span>
-                    <span>
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16M7 7h10M9 17h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                        <em>Harga karyawan</em>
+                    <span v-for="brand in brandMarks" :key="brand.name">
+                        <img :src="brand.src" :alt="brand.name">
                     </span>
                 </div>
             </div>
-            <p class="login-footer">Claimly untuk karyawan</p>
+            <p class="login-footer">Product Claim untuk karyawan</p>
         </section>
         <div
             ref="stageRef"
@@ -196,7 +188,7 @@ async function submit() {
             <div class="login-sheet-handle" aria-hidden="true"></div>
             <form class="login-card" @submit.prevent="submit">
                 <h1>Selamat datang</h1>
-                <p>Masuk untuk melanjutkan ke Claimly.</p>
+                <p>Masuk untuk melanjutkan ke Product Claim.</p>
                 <label class="login-field">
                     <div class="login-control">
                         <input v-model="email" type="email" autocomplete="username" required placeholder="nama@perusahaan.com" aria-label="Email">
@@ -218,7 +210,7 @@ async function submit() {
                 <p v-if="error" class="form-error">{{ error }}</p>
                 <button class="login-submit" type="submit" :disabled="submitting">{{ submitting ? 'Memeriksa...' : 'Masuk' }}</button>
             </form>
-            <p class="login-footer login-footer-sheet">Claimly untuk karyawan</p>
+            <p class="login-footer login-footer-sheet">Product Claim untuk karyawan</p>
             </div>
         </div>
     </div>

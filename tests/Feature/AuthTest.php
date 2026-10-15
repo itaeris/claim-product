@@ -21,6 +21,7 @@ class AuthTest extends TestCase
     {
         $this->getJson('/api/catalog')->assertUnauthorized();
         $this->getJson('/api/categories')->assertUnauthorized();
+        $this->getJson('/api/me')->assertNoContent();
     }
 
     public function test_employees_can_log_in_and_out(): void

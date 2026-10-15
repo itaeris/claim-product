@@ -5,14 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class SessionController extends Controller
 {
-    public function show(Request $request): JsonResponse
+    public function show(Request $request): JsonResponse|Response
     {
-        return response()->json($this->userPayload($request->user()));
+        $user = $request->user();
+
+        if ($user === null) {
+            return response()->noContent();
+        }
+
+        return response()->json($this->userPayload($user));
     }
 
     public function store(Request $request): JsonResponse

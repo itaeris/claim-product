@@ -22,7 +22,7 @@ watch(showBrands, (visible) => {
         <main class="admin-main">
             <div class="admin-heading">
                 <div>
-                    <h1>Kelola Claimly</h1>
+                    <h1>Kelola Product Claim</h1>
                     <p>Produk, kategori, user, harga, dan diskon. Semua nominal dalam Rupiah.</p>
                 </div>
                 <div class="admin-tabs">
