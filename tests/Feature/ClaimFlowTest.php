@@ -118,9 +118,10 @@ class ClaimFlowTest extends TestCase
         $this->assertDatabaseHas('claims', ['fulfillment' => 'pickup', 'shipping_fee' => 0, 'shipping_address' => null]);
     }
 
-    public function test_each_sku_is_limited_to_five_pieces_a_year_until_hr_approves_more(): void
+    public function test_each_sku_is_limited_to_five_pieces_and_resets_on_january_first(): void
     {
         $puff = $this->product('Cloud Control Puff');
+        $legging = $this->product('Euphoric Compression Legging');
 
         $this->actingAs($this->employee)
             ->patchJson('/api/cart/items/'.$puff->id, ['qty' => 6])
@@ -128,40 +129,34 @@ class ClaimFlowTest extends TestCase
             ->assertJsonValidationErrors('limit');
 
         $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 5])->assertOk();
+        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 5])->assertOk();
         $this->postJson('/api/claims')->assertCreated();
 
         $this->postJson('/api/cart/items', ['product_id' => $puff->id])
             ->assertStatus(422)
             ->assertJsonValidationErrors('limit');
+        $this->postJson('/api/cart/items', ['product_id' => $this->product('Aeris Beauté 8 Brush Set')->id])->assertOk();
 
         $this->getJson('/api/limits')
             ->assertOk()
+            ->assertJsonPath('year', 2026)
             ->assertJsonPath('per_sku', 5)
-            ->assertJsonPath('products.0.name', 'Cloud Control Puff')
+            ->assertJsonPath('resets_label', '1 Januari 2027')
+            ->assertJsonPath('totals.skus', 2)
+            ->assertJsonPath('totals.pcs', 10)
+            ->assertJsonPath('totals.full', 2)
             ->assertJsonPath('products.0.used', 5)
             ->assertJsonPath('products.0.remaining', 0);
 
-        $requestId = $this->postJson('/api/limit-requests', [
-            'product_id' => $puff->id,
-            'extra_qty' => 2,
-            'reason' => 'Untuk hadiah tim saat acara kantor.',
-            'supervisor_name' => 'Rina',
-            'supervisor_email' => 'rina@claimly.test',
-        ])->assertCreated()->assertJsonPath('status', 'menunggu')->json('id');
+        $this->travelTo('2026-12-31 16:59:00');
+        $this->postJson('/api/cart/items', ['product_id' => $puff->id])->assertStatus(422);
 
-        $this->getJson('/api/limit-requests')->assertForbidden();
-
-        $this->actingAs($this->admin)
-            ->patchJson('/api/limit-requests/'.$requestId, ['status' => 'disetujui', 'note' => 'OK atasan'])
+        $this->travelTo('2026-12-31 17:00:00');
+        $this->postJson('/api/cart/items', ['product_id' => $puff->id])->assertOk();
+        $this->getJson('/api/limits')
             ->assertOk()
-            ->assertJsonPath('status', 'disetujui');
-
-        $this->actingAs($this->employee)
-            ->patchJson('/api/cart/items/'.$puff->id, ['qty' => 2])
-            ->assertOk();
-        $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 3])
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('limit');
+            ->assertJsonPath('year', 2027)
+            ->assertJsonPath('totals.pcs', 0);
     }
 
     public function test_payment_flow_handles_underpayment_overpayment_and_delivery(): void

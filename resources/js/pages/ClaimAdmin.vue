@@ -125,8 +125,11 @@ function cancel(claim) {
                             <td>
                                 <div class="claim-actions">
                                     <span class="status" :class="statusTone(claim.status)">{{ claim.status_label }}</span>
-                                    <a v-if="claim.invoice_url" class="text-btn" :href="claim.invoice_url" target="_blank" rel="noopener">Invoice</a>
-                                    <a v-for="(payment, index) in claim.payments" :key="payment.id" class="text-btn" :href="payment.proof_url" target="_blank" rel="noopener">
+                                    <a v-if="claim.invoice_url" class="chip-btn" :href="claim.invoice_url" target="_blank" rel="noopener">
+                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l4 4v14H7V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v4h4M10 12h5M10 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                        Invoice
+                                    </a>
+                                    <a v-for="(payment, index) in claim.payments" :key="payment.id" class="chip-btn muted" :href="payment.proof_url" target="_blank" rel="noopener">
                                         Bukti {{ index + 1 }} ({{ rupiah(payment.declared_amount) }}{{ payment.status === 'ditolak' ? ', ditolak' : '' }})
                                     </a>
                                 </div>

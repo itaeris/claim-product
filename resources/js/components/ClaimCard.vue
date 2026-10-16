@@ -172,7 +172,7 @@ async function confirmReceived() {
 
         <div class="claim-card-actions">
             <a v-if="claim.invoice_url" class="ghost-btn" :href="claim.invoice_url" target="_blank" rel="noopener">Lihat invoice</a>
-            <a v-for="(payment, index) in claim.payments" :key="payment.id" class="text-btn" :href="payment.proof_url" target="_blank" rel="noopener">
+            <a v-for="(payment, index) in claim.payments" :key="payment.id" class="chip-btn muted" :href="payment.proof_url" target="_blank" rel="noopener">
                 Bukti {{ index + 1 }} · {{ payment.status === 'menunggu' ? 'diverifikasi' : payment.status }}
             </a>
             <button v-if="canConfirm" class="primary-btn" type="button" :disabled="busy" @click="confirmReceived">Barang sudah diterima</button>

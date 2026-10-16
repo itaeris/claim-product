@@ -12,6 +12,10 @@ const props = defineProps({
         type: Number,
         default: 5,
     },
+    resetsLabel: {
+        type: String,
+        default: '',
+    },
 });
 
 const emit = defineEmits(['close', 'add']);
@@ -76,8 +80,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <dd>{{ rupiah(product.claim_price) }}</dd>
                         </div>
                     </dl>
-                    <p class="preview-note">Maks. {{ skuLimit }} pcs per SKU per tahun · invoice dari {{ product.company || product.brand }}</p>
-                    <button class="claim-btn preview-add" type="button" @click="emit('add', product)">Tambahkan ke klaim</button>
+                    <div class="preview-quota">
+                        <div class="limit-meter" :class="{ full: product.remaining === 0 }" aria-hidden="true">
+                            <span v-for="cell in skuLimit" :key="cell" :class="{ on: cell <= skuLimit - product.remaining }"></span>
+                        </div>
+                        <span>Sisa kuota kamu <strong>{{ product.remaining }}/{{ skuLimit }} pcs</strong><template v-if="resetsLabel"> · reset {{ resetsLabel }}</template></span>
+                    </div>
+                    <p class="preview-note">Invoice dari {{ product.company || product.brand }}</p>
+                    <button class="claim-btn preview-add" type="button" :disabled="product.remaining === 0" @click="emit('add', product)">
+                        {{ product.remaining === 0 ? 'Kuota tahun ini habis' : 'Tambahkan ke keranjang' }}
+                    </button>
                 </div>
             </article>
         </div>

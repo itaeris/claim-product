@@ -14,7 +14,19 @@ const props = defineProps({
         type: Number,
         default: 5,
     },
+    used: {
+        type: Object,
+        default: () => ({}),
+    },
+    resetsLabel: {
+        type: String,
+        default: '',
+    },
 });
+
+function remaining(product) {
+    return Math.max(0, props.skuLimit - (props.used[product.id] ?? 0));
+}
 
 const emit = defineEmits(['add']);
 
@@ -62,6 +74,7 @@ function openProduct(product) {
         brand: activeBrand.value?.name ?? '',
         company: activeBrand.value?.company_name ?? '',
         discount: activeBrand.value?.discount_percent ?? 0,
+        remaining: remaining(product),
     };
 }
 </script>
@@ -123,6 +136,9 @@ function openProduct(product) {
             <div class="product-image">
                 <ProductPhoto :src="product.image || ''" :alt="product.name" />
                 <span class="discount">{{ activeBrand?.discount_percent }}% OFF</span>
+                <span v-if="used[product.id]" class="quota-chip" :class="{ full: remaining(product) === 0 }">
+                    {{ remaining(product) ? `Sisa ${remaining(product)}/${skuLimit}` : 'Kuota habis' }}
+                </span>
             </div>
             <div class="product-info">
                 <span class="product-cat">{{ product.category }}</span>
@@ -132,7 +148,7 @@ function openProduct(product) {
                         <small>{{ rupiah(product.price) }}</small>
                         <strong>{{ rupiah(product.claim_price) }}</strong>
                     </div>
-                    <button class="add-btn" type="button" :aria-label="`Tambahkan ${product.name}`" @click.stop="emit('add', product)">+</button>
+                    <button class="add-btn" type="button" :disabled="remaining(product) === 0" :aria-label="`Tambahkan ${product.name}`" @click.stop="emit('add', product)">+</button>
                 </div>
             </div>
         </article>
@@ -142,6 +158,7 @@ function openProduct(product) {
     <ProductPreview
         :product="selected"
         :sku-limit="skuLimit"
+        :resets-label="resetsLabel"
         @close="selected = null"
         @add="emit('add', $event)"
     />

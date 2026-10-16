@@ -24,6 +24,16 @@ const submitting = ref(false);
 const cartOpen = ref(false);
 const fulfillment = ref('pickup');
 const address = ref('');
+const limits = ref(null);
+const usedBySku = computed(() => Object.fromEntries((limits.value?.products ?? []).map((row) => [row.product_id, row.used])));
+
+async function loadLimits() {
+    try {
+        limits.value = await api.get('/api/limits');
+    } catch {
+        limits.value = null;
+    }
+}
 const claimCart = reactive({
     count: computed(() => cart.value.count),
     openCart() {
@@ -49,6 +59,7 @@ onMounted(async () => {
         ]);
         catalog.value = catalogData;
         cart.value = cartData;
+        loadLimits();
     } catch (error) {
         loadError.value = error.message;
     }
@@ -105,6 +116,7 @@ function submitClaim() {
             cart.value = result.cart;
             cartOpen.value = false;
             show(result.message);
+            loadLimits();
         } catch (error) {
             show(error.message);
         } finally {
@@ -124,6 +136,8 @@ function submitClaim() {
                     v-if="catalog"
                     :brands="catalog.brands"
                     :sku-limit="catalog.sku_limit"
+                    :used="usedBySku"
+                    :resets-label="limits?.resets_label || ''"
                     @add="addProduct"
                 />
                 <div v-else class="empty loading-note">{{ loadError || 'Memuat katalog...' }}</div>

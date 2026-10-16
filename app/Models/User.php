@@ -30,11 +30,6 @@ class User extends Authenticatable
         return $this->hasMany(Claim::class);
     }
 
-    public function limitRequests(): HasMany
-    {
-        return $this->hasMany(LimitRequest::class);
-    }
-
     public function employmentLabel(): ?string
     {
         return self::EMPLOYMENT_TYPES[$this->employment_type] ?? null;

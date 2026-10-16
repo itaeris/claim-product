@@ -11,6 +11,7 @@ const loading = ref(true);
 const error = ref('');
 const tab = ref('progres');
 const activeClaims = computed(() => claims.value.filter((claim) => !isFinished(claim)));
+const finishedCount = computed(() => claims.value.length - activeClaims.value.length);
 const historyRows = computed(() => claims.value
     .filter(isFinished)
     .flatMap((claim) => (claim.items.length ? claim.items : [null]).map((item, index) => ({
@@ -37,8 +38,12 @@ function replace(updated) {
 <template>
     <section class="goods-board">
         <div class="goods-tabs">
-            <button type="button" class="admin-tab" :class="{ active: tab === 'progres' }" @click="tab = 'progres'">Progres</button>
-            <button type="button" class="admin-tab" :class="{ active: tab === 'selesai' }" @click="tab = 'selesai'">Selesai</button>
+            <button type="button" class="admin-tab" :class="{ active: tab === 'progres' }" @click="tab = 'progres'">
+                Progres<b v-if="activeClaims.length" class="tab-count">{{ activeClaims.length }}</b>
+            </button>
+            <button type="button" class="admin-tab" :class="{ active: tab === 'selesai' }" @click="tab = 'selesai'">
+                Selesai<b v-if="finishedCount" class="tab-count">{{ finishedCount }}</b>
+            </button>
         </div>
         <p v-if="loading" class="empty-note">Memuat progres...</p>
         <p v-else-if="error" class="form-error">{{ error }}</p>
@@ -67,7 +72,10 @@ function replace(updated) {
                                 </div>
                             </td>
                             <td>
-                                <a v-if="row.claim.invoice_url" class="text-btn" :href="row.claim.invoice_url" target="_blank" rel="noopener">{{ row.claim.invoice_number }}</a>
+                                <a v-if="row.claim.invoice_url" class="chip-btn" :href="row.claim.invoice_url" target="_blank" rel="noopener">
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h7l4 4v14H7V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v4h4M10 12h5M10 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                    {{ row.claim.invoice_number }}
+                                </a>
                                 <template v-else>{{ row.claim.invoice_number || row.claim.number }}</template>
                             </td>
                             <td>{{ row.claim.completed_label || row.claim.submitted_label }}</td>

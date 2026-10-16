@@ -32,7 +32,6 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('/claims/{claim}/received', [ClaimController::class, 'received']);
     Route::get('/payments/{payment}/proof', [PaymentController::class, 'proof']);
     Route::get('/limits', [LimitController::class, 'index']);
-    Route::post('/limit-requests', [LimitController::class, 'store']);
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read', [NotificationController::class, 'markRead']);
 
@@ -45,8 +44,6 @@ Route::middleware('auth')->prefix('api')->group(function () {
         Route::apiResource('users', UserController::class)->except('show');
         Route::get('/claims/all', [ClaimController::class, 'adminIndex']);
         Route::post('/claims/{claim}/actions', [ClaimController::class, 'action']);
-        Route::get('/limit-requests', [LimitController::class, 'adminIndex']);
-        Route::patch('/limit-requests/{limitRequest}', [LimitController::class, 'review']);
     });
 });
 

@@ -23,11 +23,10 @@ watch(showBrands, (visible) => {
             <div class="admin-heading">
                 <div>
                     <h1>Kelola Product Claim</h1>
-                    <p>Pesanan per invoice, limit karyawan, produk, harga, dan ketentuan tiap brand. Semua nominal dalam Rupiah.</p>
+                    <p>Pesanan per invoice, produk, harga, dan ketentuan tiap brand. Semua nominal dalam Rupiah.</p>
                 </div>
                 <div class="admin-tabs">
                     <RouterLink to="/kelola/klaim" class="admin-tab">Pesanan</RouterLink>
-                    <RouterLink to="/kelola/limit" class="admin-tab">Limit</RouterLink>
                     <RouterLink to="/kelola/produk" class="admin-tab" :class="{ 'router-link-active': showBrands }">Katalog</RouterLink>
                     <RouterLink to="/kelola/user" class="admin-tab">User</RouterLink>
                 </div>

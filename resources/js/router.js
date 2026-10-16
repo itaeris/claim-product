@@ -5,7 +5,6 @@ import CategoryAdmin from './pages/CategoryAdmin.vue';
 import ClaimAdmin from './pages/ClaimAdmin.vue';
 import ClaimDesk from './pages/ClaimDesk.vue';
 import DiscountAdmin from './pages/DiscountAdmin.vue';
-import LimitAdmin from './pages/LimitAdmin.vue';
 import LoginPage from './pages/LoginPage.vue';
 import PriceAdmin from './pages/PriceAdmin.vue';
 import ProductAdmin from './pages/ProductAdmin.vue';
@@ -25,9 +24,7 @@ export const router = createRouter({
         { path: '/kelola/harga', component: PriceAdmin, meta: { auth: true, admin: true } },
         { path: '/kelola/diskon', component: DiscountAdmin, meta: { auth: true, admin: true } },
         { path: '/kelola/user', component: UserAdmin, meta: { auth: true, admin: true } },
-        { path: '/kelola/klaim', component: ClaimAdmin, meta: { auth: true, admin: true } },
-        { path: '/kelola/limit', component: LimitAdmin, meta: { auth: true, admin: true } },
-    ],
+        { path: '/kelola/klaim', component: ClaimAdmin, meta: { auth: true, admin: true } },    ],
 });
 
 router.beforeEach(async (to) => {

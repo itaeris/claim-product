@@ -63,7 +63,7 @@ Seeder juga mengisi tiga brand beserta ketentuannya, produk, dan periode Oktober
 | From This Island | PT Inovasi Alam Nusantara    | 30%             |
 | KIN + ALLY       | PT Kinerja Inovasi Nusantara | 30%             |
 
-Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan boleh membeli maksimal 5 pcs per SKU per tahun. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
+Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan boleh membeli maksimal 5 pcs per SKU per tahun, sama untuk semua brand. Kuota reset otomatis setiap 1 Januari pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
 
 ## Alur pesanan
 
@@ -75,13 +75,13 @@ Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan
 6. Gudang menyiapkan barang, lalu mengirim (dengan nomor resi opsional) atau menandai siap diambil.
 7. Karyawan menekan "Barang sudah diterima", atau admin menandai selesai.
 
-Jika limit habis, karyawan mengisi form penambahan limit di Profil (alasan, nama dan email atasan). HR menyetujui atau menolak di `/kelola/limit`. Pesanan yang dibatalkan tidak dihitung ke limit.
+Karyawan melihat grafik kuota per SKU di Profil (terpakai, sisa, dan tanggal reset). Kartu produk di katalog juga menampilkan sisa kuota, dan tombol tambah mati jika kuota SKU itu habis. Pesanan yang dibatalkan tidak dihitung ke kuota.
 
 Invoice bisa dicetak atau disimpan sebagai PDF di `/invoices/{id}` setelah stok dicek. Bukti transfer disimpan di disk privat dan hanya bisa dibuka pemilik pesanan atau admin.
 
 ## Notifikasi
 
-Karyawan mendapat notifikasi di lonceng header dan email di setiap perubahan status. Admin mendapat notifikasi lonceng, email opsional, dan pesan grup Lark untuk pekerjaan yang perlu ditindaklanjuti (pesanan baru, bukti transfer masuk, siapkan barang, pengajuan limit).
+Karyawan mendapat notifikasi di lonceng header dan email di setiap perubahan status. Admin mendapat notifikasi lonceng, email opsional, dan pesan grup Lark untuk pekerjaan yang perlu ditindaklanjuti (pesanan baru, bukti transfer masuk, siapkan barang).
 
 | Variabel                   | Fungsi                                             |
 | -------------------------- | -------------------------------------------------- |
@@ -96,16 +96,15 @@ Email memakai pengaturan `MAIL_*` biasa. Dengan `MAIL_MAILER=log`, email ditulis
 
 ## Peran
 
-User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, dan mengajukan tambahan limit. Admin bisa semua itu, plus menjalankan tahap CS, Finance, HR, dan Warehouse serta mengelola katalog dan user. Admin yang ingin belanja tanpa menu admin bisa memilih "Belanja sebagai user" di menu akun.
+User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, dan melihat kuota pembeliannya. Admin bisa semua itu, plus menjalankan tahap CS, Finance, dan Warehouse serta mengelola katalog dan user. Admin yang ingin belanja tanpa menu admin bisa memilih "Belanja sebagai user" di menu akun.
 
 | Halaman            | Siapa                                      |
 | ------------------ | ------------------------------------------ |
 | `/login`           | Tamu                                       |
 | `/`                | Katalog dan keranjang                      |
 | `/progres`         | Progres pesanan sendiri                    |
-| `/profile`         | Akun, kuota, dan form penambahan limit     |
+| `/profile`         | Akun, grafik kuota, dan progres            |
 | `/kelola/klaim`    | Admin: pesanan per tahap                   |
-| `/kelola/limit`    | Admin: pengajuan limit                     |
 | `/kelola/produk`   | Admin                                      |
 | `/kelola/kategori` | Admin                                      |
 | `/kelola/harga`    | Admin                                      |
