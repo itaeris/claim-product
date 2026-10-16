@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'shipping_fee',
     'company_name',
     'company_address',
+    'contact_phone',
+    'contact_email',
+    'website',
     'bank_name',
     'bank_account_number',
     'bank_account_name',
@@ -46,6 +49,14 @@ class Brand extends Model
     public function claims(): HasMany
     {
         return $this->hasMany(Claim::class);
+    }
+
+    public function invoiceTemplate(): string
+    {
+        return match ($this->short) {
+            'FTI' => 'invoices.fti',
+            default => 'invoices.aeris',
+        };
     }
 
     public function invoiceCode(): string

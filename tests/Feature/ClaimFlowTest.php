@@ -265,6 +265,32 @@ class ClaimFlowTest extends TestCase
             ->assertJsonPath('status', 'selesai');
     }
 
+    public function test_from_this_island_invoices_use_their_own_template(): void
+    {
+        $this->employee->update(['phone' => '089513864237']);
+
+        $this->actingAs($this->employee)
+            ->postJson('/api/cart/items', ['product_id' => $this->product('Tropical Guava Barrier Moisture Gel')->id])
+            ->assertOk();
+        $this->postJson('/api/claims', ['fulfillment' => 'delivery', 'address' => 'Jl. Tanjung Duren Raya No.24'])->assertCreated();
+        $claim = Claim::query()->latest('id')->firstOrFail();
+
+        $this->actingAs($this->admin)->postJson("/api/claims/{$claim->id}/actions", ['action' => 'stok_tersedia'])->assertOk();
+
+        $this->actingAs($this->employee)
+            ->get('/invoices/'.$claim->id)
+            ->assertOk()
+            ->assertSee('INV/FTI/202610/0001')
+            ->assertSee('help@fromthisisland.com')
+            ->assertSee('Bill To')
+            ->assertSee('089513864237')
+            ->assertSee('65,700')
+            ->assertSee('153,300')
+            ->assertSee('Rp173,300')
+            ->assertSee('0062775775')
+            ->assertSee('a/n Inovasi Alam Nusantara');
+    }
+
     public function test_lark_webhook_receives_ops_updates_when_configured(): void
     {
         config(['services.lark.webhook_url' => 'https://open.larksuite.com/open-apis/bot/v2/hook/test']);

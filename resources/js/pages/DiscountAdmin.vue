@@ -20,6 +20,9 @@ watch(brand, (current) => {
             shipping_fee: current.shipping_fee,
             company_name: current.company_name || '',
             company_address: current.company_address || '',
+            contact_phone: current.contact_phone || '',
+            contact_email: current.contact_email || '',
+            website: current.website || '',
             bank_name: current.bank_name || '',
             bank_account_number: current.bank_account_number || '',
             bank_account_name: current.bank_account_name || '',
@@ -84,6 +87,20 @@ async function save() {
             <label class="field">
                 <span>Alamat PT</span>
                 <textarea v-model="form.company_address" rows="3" maxlength="500" placeholder="Satu baris per enter, mis. jalan, kota, provinsi"></textarea>
+            </label>
+            <div class="terms-grid">
+                <label class="field">
+                    <span>Telepon brand</span>
+                    <input v-model="form.contact_phone" type="text" maxlength="40" placeholder="0851-0000-0000">
+                </label>
+                <label class="field">
+                    <span>Email brand</span>
+                    <input v-model="form.contact_email" type="email" maxlength="255" placeholder="help@brand.com">
+                </label>
+            </div>
+            <label class="field">
+                <span>Website</span>
+                <input v-model="form.website" type="text" maxlength="255" placeholder="www.brand.com">
             </label>
             <div class="terms-grid">
                 <label class="field">

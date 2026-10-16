@@ -125,7 +125,7 @@
                         <div>{{ $line }}</div>
                     @endforeach
                 </div>
-                <div class="contact">{{ $claim->user?->email }}</div>
+                <div class="contact">{{ $claim->user?->phone ?: $claim->user?->email }}</div>
             </div>
         </div>
 

@@ -35,6 +35,9 @@ class BrandController extends Controller
             'shipping_fee' => ['required', 'integer', 'min:0'],
             'company_name' => ['required', 'string', 'max:160'],
             'company_address' => ['nullable', 'string', 'max:500'],
+            'contact_phone' => ['nullable', 'string', 'max:40'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
+            'website' => ['nullable', 'string', 'max:255'],
             'bank_name' => ['nullable', 'string', 'max:80'],
             'bank_account_number' => ['nullable', 'string', 'max:40'],
             'bank_account_name' => ['nullable', 'string', 'max:160'],
@@ -47,6 +50,7 @@ class BrandController extends Controller
             'shipping_fee.integer' => 'Ongkir harus berupa angka Rupiah.',
             'shipping_fee.min' => 'Ongkir tidak boleh minus.',
             'company_name.required' => 'Nama PT wajib diisi.',
+            'contact_email.email' => 'Format email brand tidak valid.',
         ]);
 
         $brand->update($data);
@@ -68,6 +72,9 @@ class BrandController extends Controller
             'shipping_fee' => $brand->shipping_fee,
             'company_name' => $brand->company_name,
             'company_address' => $brand->company_address,
+            'contact_phone' => $brand->contact_phone,
+            'contact_email' => $brand->contact_email,
+            'website' => $brand->website,
             'bank_name' => $brand->bank_name,
             'bank_account_number' => $brand->bank_account_number,
             'bank_account_name' => $brand->bank_account_name,

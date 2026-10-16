@@ -52,9 +52,12 @@ class CatalogSeeder extends Seeder
                     'shipping_fee' => 20000,
                     'company_name' => $brandData['company_name'],
                     'company_address' => $brandData['company_address'] ?? null,
+                    'contact_phone' => $brandData['contact_phone'] ?? null,
+                    'contact_email' => $brandData['contact_email'] ?? null,
+                    'website' => $brandData['website'] ?? null,
                     'bank_name' => $brandData['bank_name'] ?? null,
                     'bank_account_number' => $brandData['bank_account_number'] ?? null,
-                    'bank_account_name' => $brandData['company_name'],
+                    'bank_account_name' => $brandData['bank_account_name'] ?? $brandData['company_name'],
                     'sort_order' => $brandIndex,
                 ],
             );
@@ -95,7 +98,7 @@ class CatalogSeeder extends Seeder
     }
 
     /**
-     * @return array<int, array{name: string, short: string, subtitle: string, discount_percent: int, company_name: string, company_address?: string, bank_name?: string, bank_account_number?: string, categories: array<int, string>, products: array<int, array{0: string, 1: string, 2: int, 3: string}>}>
+     * @return array<int, array{name: string, short: string, subtitle: string, discount_percent: int, company_name: string, company_address?: string, contact_phone?: string, contact_email?: string, website?: string, bank_name?: string, bank_account_number?: string, bank_account_name?: string, categories: array<int, string>, products: array<int, array{0: string, 1: string, 2: int, 3: string}>}>
      */
     private function brands(): array
     {
@@ -128,6 +131,12 @@ class CatalogSeeder extends Seeder
                 'subtitle' => 'Skincare & makeup',
                 'discount_percent' => 30,
                 'company_name' => 'PT Inovasi Alam Nusantara',
+                'contact_phone' => '0851-7511-4967',
+                'contact_email' => 'help@fromthisisland.com',
+                'website' => 'www.fromthisisland.com',
+                'bank_name' => 'BCA',
+                'bank_account_number' => '0062775775',
+                'bank_account_name' => 'Inovasi Alam Nusantara',
                 'categories' => ['Lip Care', 'Toner', 'Moisturizer', 'Serum', 'Cleanser'],
                 'products' => [
                     ['Illipe Plumping Lip Butter — Classic Nude', 'Lip Care', 149000, $this->image('photo-1586495777744-4413f21062fa')],

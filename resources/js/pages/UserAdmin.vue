@@ -45,7 +45,7 @@ onMounted(async () => {
 });
 
 function openCreate() {
-    form.value = { id: null, name: '', email: '', team: '', employment_type: 'tetap', company: companyOptions[0].value, role: 'user', password: '' };
+    form.value = { id: null, name: '', email: '', phone: '', team: '', employment_type: 'tetap', company: companyOptions[0].value, role: 'user', password: '' };
 }
 
 function openEdit(person) {
@@ -53,6 +53,7 @@ function openEdit(person) {
         id: person.id,
         name: person.name,
         email: person.email,
+        phone: person.phone || '',
         team: person.team,
         employment_type: person.employment_type || 'tetap',
         company: person.company || companyOptions[0].value,
@@ -66,6 +67,7 @@ async function save() {
     const payload = {
         name: form.value.name,
         email: form.value.email,
+        phone: form.value.phone,
         team: form.value.team,
         employment_type: form.value.employment_type,
         company: form.value.company,
@@ -161,6 +163,10 @@ async function remove(person) {
                 <label class="field">
                     <span>Email</span>
                     <input v-model="form.email" type="email" required maxlength="255" placeholder="nama@perusahaan.com">
+                </label>
+                <label class="field">
+                    <span>No. HP</span>
+                    <input v-model="form.phone" type="tel" maxlength="30" placeholder="0812xxxxxxxx (tampil di invoice)">
                 </label>
                 <label class="field">
                     <span>Tim</span>

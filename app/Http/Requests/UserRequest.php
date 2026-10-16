@@ -27,6 +27,7 @@ class UserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($this->route('user')),
             ],
             'team' => ['required', 'string', 'max:120'],
+            'phone' => ['nullable', 'string', 'max:30'],
             'role' => ['required', Rule::in(['user', 'admin'])],
             'employment_type' => ['required', Rule::in(array_keys(User::EMPLOYMENT_TYPES))],
             'company' => ['required', 'string', 'max:160'],

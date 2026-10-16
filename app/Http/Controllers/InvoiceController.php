@@ -18,7 +18,7 @@ class InvoiceController extends Controller
 
         $claim->loadMissing(['items', 'brand', 'user', 'payments']);
 
-        return view('invoice', [
+        return view($claim->brand?->invoiceTemplate() ?? 'invoices.aeris', [
             'claim' => $claim,
             'issuedLabel' => IndonesianDate::date($claim->invoice_issued_at),
         ]);

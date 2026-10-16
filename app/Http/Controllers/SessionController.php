@@ -90,6 +90,7 @@ class SessionController extends Controller
             'team' => $user?->team,
             'initials' => $user?->initials,
             'email' => $user?->email,
+            'phone' => $user?->phone,
             'employment_type' => $user?->employment_type,
             'employment_label' => $user?->employmentLabel(),
             'company' => $user?->company,
