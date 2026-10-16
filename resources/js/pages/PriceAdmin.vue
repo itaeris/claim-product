@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { adminBrandId, loadAdminBrands } from '../adminBrand';
+import { adminBrandId, adminBrands, loadAdminBrands } from '../adminBrand';
 import { api } from '../api';
 import { rupiah } from '../format';
 import { useToast } from '../toast';
@@ -10,7 +10,7 @@ import ProductPhoto from '../components/ProductPhoto.vue';
 const { show } = useToast();
 const products = ref([]);
 const drafts = ref({});
-const discount = ref(0);
+const discount = computed(() => adminBrands.value.find((brand) => brand.id === adminBrandId.value)?.discount_percent ?? 0);
 const query = ref('');
 const loading = ref(true);
 const savingId = ref(null);
@@ -28,13 +28,11 @@ function claimPrice(product) {
 }
 
 async function load() {
-    const [, productList, period] = await Promise.all([
+    const [, productList] = await Promise.all([
         loadAdminBrands(),
         api.get('/api/products'),
-        api.get('/api/discount'),
     ]);
     products.value = productList;
-    discount.value = period.discount_percent;
     drafts.value = Object.fromEntries(productList.map((product) => [product.id, product.retail_price]));
 }
 
@@ -73,7 +71,7 @@ async function save(product) {
                 <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m16.5 16.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
                 <input v-model="query" type="search" placeholder="Cari produk...">
             </label>
-            <p v-if="!loading" class="currency-note">Semua harga dalam Rupiah (IDR). Diskon periode {{ discount }}%.</p>
+            <p v-if="!loading" class="currency-note">Semua harga dalam Rupiah (IDR). Diskon brand ini {{ discount }}%.</p>
         </div>
         <section class="table-card admin-layout">
             <div v-if="loading" class="empty">Memuat harga...</div>

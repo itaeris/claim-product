@@ -77,6 +77,8 @@ class UserController extends Controller
             'name' => $name,
             'email' => $request->string('email')->toString(),
             'team' => $request->string('team')->toString(),
+            'employment_type' => $request->string('employment_type')->toString(),
+            'company' => $request->string('company')->toString(),
             'initials' => User::initialsFrom($name),
             'is_admin' => $request->string('role')->toString() === 'admin',
         ];
@@ -99,6 +101,9 @@ class UserController extends Controller
             'email' => $user->email,
             'team' => $user->team,
             'initials' => $user->initials,
+            'employment_type' => $user->employment_type,
+            'employment_label' => $user->employmentLabel(),
+            'company' => $user->company,
             'role' => $user->is_admin ? 'admin' : 'user',
         ];
     }

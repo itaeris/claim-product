@@ -11,16 +11,33 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'team', 'initials', 'email', 'password', 'is_admin'])]
+#[Fillable(['name', 'team', 'initials', 'email', 'password', 'is_admin', 'employment_type', 'company'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const EMPLOYMENT_TYPES = [
+        'tetap' => 'Karyawan tetap',
+        'kontrak' => 'Karyawan kontrak',
+        'daily_worker' => 'Daily worker',
+        'intern' => 'Intern',
+    ];
+
     public function claims(): HasMany
     {
         return $this->hasMany(Claim::class);
+    }
+
+    public function limitRequests(): HasMany
+    {
+        return $this->hasMany(LimitRequest::class);
+    }
+
+    public function employmentLabel(): ?string
+    {
+        return self::EMPLOYMENT_TYPES[$this->employment_type] ?? null;
     }
 
     public static function initialsFrom(string $name): string

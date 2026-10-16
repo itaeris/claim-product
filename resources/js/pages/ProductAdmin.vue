@@ -15,7 +15,7 @@ const form = ref(null);
 const query = ref('');
 const saving = ref(false);
 const loading = ref(true);
-const discount = ref(30);
+const discount = computed(() => brands.value.find((brand) => brand.id === Number(form.value?.brand_id))?.discount_percent ?? 0);
 const imageFile = ref(null);
 const imagePreview = ref('');
 const removeImage = ref(false);
@@ -52,14 +52,12 @@ watch(() => form.value?.brand_id, () => {
 });
 
 async function load() {
-    const [brandList, productList, period] = await Promise.all([
+    const [brandList, productList] = await Promise.all([
         loadAdminBrands(),
         api.get('/api/products'),
-        api.get('/api/discount'),
     ]);
     brands.value = brandList;
     products.value = productList;
-    discount.value = period.discount_percent;
 }
 
 onMounted(async () => {

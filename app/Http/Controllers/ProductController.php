@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
-use App\Models\ClaimPeriod;
 use App\Models\Product;
 use App\Services\CatalogQuery;
 use App\Services\ClaimPricing;
@@ -14,14 +13,12 @@ use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
-    private ?int $discountPercent = null;
-
     public function __construct(private ClaimPricing $pricing) {}
 
     public function index(): JsonResponse
     {
         $products = Product::query()
-            ->with(['brand:id,name', 'category:id,name'])
+            ->with(['brand:id,name,discount_percent', 'category:id,name'])
             ->join('brands', 'brands.id', '=', 'products.brand_id')
             ->join('categories', 'categories.id', '=', 'products.category_id')
             ->orderBy('brands.sort_order')
@@ -152,16 +149,11 @@ class ProductController extends Controller
             'category_name' => $product->category?->name,
             'name' => $product->name,
             'retail_price' => $product->retail_price,
-            'claim_price' => $this->pricing->claimUnitPrice($product->retail_price, $this->discountPercent()),
+            'claim_price' => $this->pricing->claimUnitPrice($product->retail_price, $product->brand?->discount_percent ?? 0),
             'currency' => 'IDR',
             'image_url' => $product->image_url,
             'is_active' => $product->is_active,
             'sort_order' => $product->sort_order,
         ];
-    }
-
-    private function discountPercent(): int
-    {
-        return $this->discountPercent ??= ClaimPeriod::current()->discount_percent;
     }
 }

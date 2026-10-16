@@ -1,6 +1,6 @@
 # Product Claim
 
-Aplikasi klaim produk karyawan. User memilih produk, mengajukan klaim, dan melihat progres. Admin mengelola katalog, harga, diskon, user, dan status klaim. Semua nominal dalam Rupiah.
+Aplikasi employee purchase untuk Aeris Beauté, From This Island, dan KIN + ALLY. Karyawan memesan produk dengan diskon per brand, pesanan otomatis dipisah menjadi satu invoice per brand, lalu berjalan melewati cek stok, pembayaran, verifikasi Finance, gudang, sampai selesai. Semua nominal dalam Rupiah.
 
 ## Stack
 
@@ -42,48 +42,75 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 ```
 
-`SESSION_DRIVER`, `CACHE_STORE`, dan `QUEUE_CONNECTION` memakai `redis`.
+`SESSION_DRIVER`, `CACHE_STORE`, dan `QUEUE_CONNECTION` memakai `redis`. Notifikasi dikirim langsung (tidak lewat queue), jadi tidak perlu worker.
 
 ## Akun seed
 
 Password kedua akun ini `password`.
 
+| Email                                           | Peran | Status                                 |
+| ----------------------------------------------- | ----- | -------------------------------------- |
+| [aeris@claimly.test](mailto:aeris@claimly.test) | Admin | Tetap, PT Citra Pasifik Kosmetik       |
+| [dina@claimly.test](mailto:dina@claimly.test)   | User  | Kontrak, PT Kinerja Inovasi Nusantara  |
 
-| Email                                           | Peran |
-| ----------------------------------------------- | ----- |
-| [aeris@claimly.test](mailto:aeris@claimly.test) | Admin |
-| [dina@claimly.test](mailto:dina@claimly.test)   | User  |
+Seeder juga mengisi tiga brand beserta ketentuannya, produk, dan periode Oktober 2026.
 
+## Kebijakan
 
-Seeder juga mengisi tiga brand (Aeris Beauté, From This Island, KIN + ALLY), produknya, dan periode Oktober 2026 dengan diskon 30%.
+| Brand            | PT                           | Diskon dari RSP |
+| ---------------- | ---------------------------- | --------------- |
+| Aeris Beauté     | PT Citra Pasifik Kosmetik    | 40%             |
+| From This Island | PT Inovasi Alam Nusantara    | 30%             |
+| KIN + ALLY       | PT Kinerja Inovasi Nusantara | 30%             |
+
+Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan boleh membeli maksimal 5 pcs per SKU per tahun. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
+
+## Alur pesanan
+
+1. Karyawan memasukkan produk ke keranjang. Sistem langsung menolak jika melewati limit SKU tahunan (pengecekan HR otomatis).
+2. Karyawan memilih ambil di gudang (gratis) atau kirim (ongkir per invoice, default ke kantor), lalu mengajukan pesanan. Keranjang dipecah menjadi satu invoice per brand dengan nomor `INV/{brand}/{tahun}{bulan}/{urutan}`, misalnya `INV/AB/202610/0001`.
+3. CS mengecek stok. Jika kosong, status menjadi `stok_kosong` dan karyawan menunggu. Jika ada, invoice terbit dan dikirim ke karyawan (cc Finance dan Warehouse).
+4. Karyawan transfer ke rekening PT brand, lalu mengunggah bukti (JPG, PNG, WebP, atau PDF, maks. 5 MB) beserta nominalnya.
+5. Finance memasukkan nominal yang diterima. Sistem membandingkan dengan tagihan: sesuai lanjut ke gudang, kurang menjadi `kurang_bayar` dan karyawan melunasi sisanya, lebih tetap lanjut ke gudang dan dicatat sebagai refund. Finance juga bisa menolak bukti yang tidak valid.
+6. Gudang menyiapkan barang, lalu mengirim (dengan nomor resi opsional) atau menandai siap diambil.
+7. Karyawan menekan "Barang sudah diterima", atau admin menandai selesai.
+
+Jika limit habis, karyawan mengisi form penambahan limit di Profil (alasan, nama dan email atasan). HR menyetujui atau menolak di `/kelola/limit`. Pesanan yang dibatalkan tidak dihitung ke limit.
+
+Invoice bisa dicetak atau disimpan sebagai PDF di `/invoices/{id}` setelah stok dicek. Bukti transfer disimpan di disk privat dan hanya bisa dibuka pemilik pesanan atau admin.
+
+## Notifikasi
+
+Karyawan mendapat notifikasi di lonceng header dan email di setiap perubahan status. Admin mendapat notifikasi lonceng, email opsional, dan pesan grup Lark untuk pekerjaan yang perlu ditindaklanjuti (pesanan baru, bukti transfer masuk, siapkan barang, pengajuan limit).
+
+| Variabel                   | Fungsi                                             |
+| -------------------------- | -------------------------------------------------- |
+| `LARK_WEBHOOK_URL`         | Webhook bot grup Lark. Kosongkan untuk mematikan.  |
+| `LARK_WEBHOOK_SECRET`      | Signature secret bot, jika diaktifkan di Lark.     |
+| `CLAIM_NOTIFY_MAIL`        | Email ke karyawan (default `true`).                |
+| `CLAIM_NOTIFY_OPS_MAIL`    | Email ke admin (default `true`).                   |
+| `CLAIM_SKU_YEARLY_LIMIT`   | Limit pcs per SKU per tahun (default `5`).         |
+| `CLAIM_WAREHOUSE_ADDRESS`  | Alamat pickup yang tampil di keranjang dan invoice. |
+
+Email memakai pengaturan `MAIL_*` biasa. Dengan `MAIL_MAILER=log`, email ditulis ke `storage/logs/laravel.log`.
 
 ## Peran
 
-User bisa membuka katalog, menaruh produk di keranjang, mengajukan klaim, dan melihat progres klaimnya sendiri. Admin bisa semua itu, plus mengelola kategori, produk, harga, diskon, user, dan status klaim.
+User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, dan mengajukan tambahan limit. Admin bisa semua itu, plus menjalankan tahap CS, Finance, HR, dan Warehouse serta mengelola katalog dan user. Admin yang ingin belanja tanpa menu admin bisa memilih "Belanja sebagai user" di menu akun.
 
-Halaman admin yang mengikuti brand (produk, kategori, harga, diskon) memakai kartu brand di atas filter. User dan klaim bersifat global.
-
-
-| Halaman            | Siapa                 |
-| ------------------ | --------------------- |
-| `/login`           | Tamu                  |
-| `/`                | Katalog dan keranjang |
-| `/progres`         | Progres klaim sendiri |
-| `/kelola/produk`   | Admin                 |
-| `/kelola/kategori` | Admin                 |
-| `/kelola/harga`    | Admin                 |
-| `/kelola/diskon`   | Admin                 |
-| `/kelola/user`     | Admin                 |
-| `/kelola/klaim`    | Admin                 |
-
-
-
-
-## Klaim
-
-Harga klaim adalah harga retail setelah diskon periode. Contoh diskon 30% pada retail Rp 69.000 menjadi Rp 48.300.
-
-Keranjang disimpan di Redis per user. Mengajukan klaim membuat nomor `CLM-{tahun}{bulan}-{urutan}` dan menyalin item ke klaim. Status berjalan dari `diajukan`, `diproses`, `disetujui`, lalu `selesai`. Admin juga bisa menandai `ditolak`.
+| Halaman            | Siapa                                      |
+| ------------------ | ------------------------------------------ |
+| `/login`           | Tamu                                       |
+| `/`                | Katalog dan keranjang                      |
+| `/progres`         | Progres pesanan sendiri                    |
+| `/profile`         | Akun, kuota, dan form penambahan limit     |
+| `/kelola/klaim`    | Admin: pesanan per tahap                   |
+| `/kelola/limit`    | Admin: pengajuan limit                     |
+| `/kelola/produk`   | Admin                                      |
+| `/kelola/kategori` | Admin                                      |
+| `/kelola/harga`    | Admin                                      |
+| `/kelola/diskon`   | Admin: diskon, ongkir, dan rekening brand  |
+| `/kelola/user`     | Admin                                      |
 
 Gambar produk dilampirkan sebagai JPG, PNG, atau WebP (maksimal 5 MB) dan disimpan lewat disk `public`. Produk tanpa gambar menampilkan placeholder kotak. Logo brand ada di `public/logo-brand`.
 
@@ -94,4 +121,3 @@ Tes memakai SQLite di memori, jadi MySQL dan Redis tidak perlu hidup.
 ```sh
 php artisan test
 ```
-

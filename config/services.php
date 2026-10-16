@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'lark' => [
+        'webhook_url' => env('LARK_WEBHOOK_URL'),
+        'secret' => env('LARK_WEBHOOK_SECRET'),
+    ],
+
 ];

@@ -23,11 +23,13 @@ watch(showBrands, (visible) => {
             <div class="admin-heading">
                 <div>
                     <h1>Kelola Product Claim</h1>
-                    <p>Produk, kategori, user, harga, dan diskon. Semua nominal dalam Rupiah.</p>
+                    <p>Pesanan per invoice, limit karyawan, produk, harga, dan ketentuan tiap brand. Semua nominal dalam Rupiah.</p>
                 </div>
                 <div class="admin-tabs">
+                    <RouterLink to="/kelola/klaim" class="admin-tab">Pesanan</RouterLink>
+                    <RouterLink to="/kelola/limit" class="admin-tab">Limit</RouterLink>
+                    <RouterLink to="/kelola/produk" class="admin-tab" :class="{ 'router-link-active': showBrands }">Katalog</RouterLink>
                     <RouterLink to="/kelola/user" class="admin-tab">User</RouterLink>
-                    <RouterLink to="/kelola/klaim" class="admin-tab">Klaim</RouterLink>
                 </div>
             </div>
             <div
@@ -48,14 +50,14 @@ watch(showBrands, (visible) => {
                             <img v-if="brandLogo(brand)" :src="brandLogo(brand)" :alt="brand.name">
                             <template v-else>{{ brand.short }}</template>
                         </span>
-                        <span><strong>{{ brand.name }}</strong><small>{{ brand.categories.length }} kategori</small></span>
+                        <span><strong>{{ brand.name }}</strong><small>{{ brand.categories.length }} kategori · diskon {{ brand.discount_percent }}%</small></span>
                     </button>
                 </div>
                 <div class="admin-tabs brand-filters">
                     <RouterLink to="/kelola/produk" class="admin-tab">Produk</RouterLink>
                     <RouterLink to="/kelola/kategori" class="admin-tab">Kategori</RouterLink>
                     <RouterLink to="/kelola/harga" class="admin-tab">Harga</RouterLink>
-                    <RouterLink to="/kelola/diskon" class="admin-tab">Diskon</RouterLink>
+                    <RouterLink to="/kelola/diskon" class="admin-tab">Diskon & ongkir</RouterLink>
                 </div>
             </div>
             <slot />

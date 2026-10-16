@@ -29,3 +29,7 @@ export function loadAdminBrands() {
 export function selectAdminBrand(id) {
     adminBrandId.value = id;
 }
+
+export function replaceAdminBrand(updated) {
+    adminBrands.value = adminBrands.value.map((brand) => (brand.id === updated.id ? { ...brand, ...updated } : brand));
+}

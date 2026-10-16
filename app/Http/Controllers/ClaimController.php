@@ -3,26 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\Claim;
-use App\Models\ClaimItem;
-use App\Models\User;
 use App\Services\CartPresenter;
 use App\Services\CartStore;
+use App\Services\ClaimPresenter;
+use App\Services\ClaimWorkflow;
 use App\Services\SubmitClaim;
-use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ClaimController extends Controller
 {
+    public function __construct(private ClaimPresenter $presenter) {}
+
     public function index(Request $request): JsonResponse
     {
         $claims = Claim::query()
             ->where('user_id', $request->user()->id)
-            ->with('items.product')
+            ->with(ClaimPresenter::RELATIONS)
             ->latest('submitted_at')
+            ->latest('id')
             ->get()
-            ->map(fn (Claim $claim) => $this->present($claim))
+            ->map(fn (Claim $claim) => $this->presenter->present($claim))
             ->values()
             ->all();
 
@@ -32,92 +34,86 @@ class ClaimController extends Controller
     public function adminIndex(): JsonResponse
     {
         $claims = Claim::query()
-            ->with(['items.product', 'user:id,name,email,team'])
+            ->with([...ClaimPresenter::RELATIONS, 'user:id,name,email,team'])
             ->latest('submitted_at')
+            ->latest('id')
             ->get()
-            ->map(fn (Claim $claim) => $this->present($claim, true))
+            ->map(fn (Claim $claim) => $this->presenter->present($claim, true))
             ->values()
             ->all();
 
         return response()->json($claims);
     }
 
-    public function updateStatus(Request $request, Claim $claim): JsonResponse
+    public function store(Request $request, SubmitClaim $claims, CartStore $cart, CartPresenter $cartPresenter): JsonResponse
     {
         $data = $request->validate([
-            'status' => ['required', Rule::in(Claim::STATUSES)],
+            'fulfillment' => ['nullable', Rule::in(Claim::FULFILLMENTS)],
+            'address' => ['nullable', 'string', 'max:500'],
         ], [
-            'status.required' => 'Status wajib dipilih.',
-            'status.in' => 'Status klaim tidak valid.',
+            'fulfillment.in' => 'Pilih ambil di gudang atau kirim.',
+            'address.max' => 'Alamat maksimal 500 karakter.',
         ]);
 
-        $claim->update(['status' => $data['status']]);
-
-        return response()->json($this->present($claim->load(['items.product', 'user:id,name,email,team']), true));
-    }
-
-    public function store(SubmitClaim $claims, CartStore $cart, CartPresenter $presenter): JsonResponse
-    {
-        $user = request()->user();
-
-        if (! $user instanceof User) {
-            abort(401);
-        }
-
-        $claim = $claims->handle($user);
+        $user = $request->user();
+        $created = $claims->handle($user, $data['fulfillment'] ?? 'pickup', $data['address'] ?? null);
+        $count = $created->count();
 
         return response()->json([
-            'message' => 'Klaim berhasil diajukan!',
-            'claim' => [
+            'message' => $count > 1
+                ? "Pesanan diajukan dan otomatis dipisah menjadi {$count} invoice sesuai brand."
+                : 'Pesanan berhasil diajukan!',
+            'claims' => $created->map(fn (Claim $claim) => [
                 'number' => $claim->number,
-                'claim_total' => $claim->claim_total,
-            ],
-            'cart' => $presenter->present($cart->items($user)),
+                'invoice_number' => $claim->invoice_number,
+                'brand' => $claim->brand->name,
+                'total_due' => $claim->total_due,
+            ])->values()->all(),
+            'cart' => $cartPresenter->present($user, $cart->items($user)),
         ], 201);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function present(Claim $claim, bool $withUser = false): array
+    public function action(Request $request, Claim $claim, ClaimWorkflow $workflow): JsonResponse
     {
-        $submittedAt = $claim->submitted_at?->timezone('Asia/Jakarta');
-        $payload = [
-            'id' => $claim->id,
-            'number' => $claim->number,
-            'status' => $claim->status,
-            'retail_total' => $claim->retail_total,
-            'saving_total' => $claim->saving_total,
-            'claim_total' => $claim->claim_total,
-            'submitted_label' => $submittedAt instanceof CarbonInterface ? $this->formatDate($submittedAt) : null,
-            'items' => $claim->items->map(fn (ClaimItem $item) => [
-                'name' => $item->product_name,
-                'quantity' => $item->quantity,
-                'image_url' => $item->product?->image_url,
-                'unit_retail_price' => $item->unit_retail_price,
-                'unit_claim_price' => $item->unit_claim_price,
-            ])->values()->all(),
-        ];
+        $data = $request->validate([
+            'action' => ['required', Rule::in(['stok_tersedia', 'stok_kosong', 'verifikasi', 'tolak_bukti', 'kirim', 'selesai', 'refund', 'batalkan'])],
+            'amount' => ['required_if:action,verifikasi', 'nullable', 'integer', 'min:0'],
+            'note' => ['required_if:action,tolak_bukti', 'nullable', 'string', 'max:255'],
+            'tracking_number' => ['nullable', 'string', 'max:100'],
+        ], [
+            'action.required' => 'Tindakan wajib dipilih.',
+            'action.in' => 'Tindakan tidak dikenal.',
+            'amount.required_if' => 'Nominal yang diterima wajib diisi.',
+            'amount.integer' => 'Nominal harus berupa angka Rupiah.',
+            'note.required_if' => 'Alasan penolakan wajib diisi.',
+        ]);
 
-        if ($withUser) {
-            $payload['user'] = [
-                'name' => $claim->user?->name,
-                'email' => $claim->user?->email,
-                'team' => $claim->user?->team,
-            ];
-        }
+        $admin = $request->user();
+        $claim->loadMissing(['user', 'brand']);
 
-        return $payload;
+        match ($data['action']) {
+            'stok_tersedia' => $workflow->confirmStock($claim, $admin),
+            'stok_kosong' => $workflow->markOutOfStock($claim, $admin),
+            'verifikasi' => $workflow->verifyPayment($claim, (int) $data['amount'], $admin),
+            'tolak_bukti' => $workflow->rejectPayment($claim, (string) $data['note'], $admin),
+            'kirim' => $workflow->dispatch($claim, $data['tracking_number'] ?? null, $admin),
+            'selesai' => $workflow->complete($claim, $admin),
+            'refund' => $workflow->refund($claim, $admin),
+            'batalkan' => $workflow->cancel($claim, (string) ($data['note'] ?? ''), $admin),
+        };
+
+        return response()->json($this->presenter->present(
+            $claim->fresh([...ClaimPresenter::RELATIONS, 'user:id,name,email,team']),
+            true,
+        ));
     }
 
-    private function formatDate(CarbonInterface $date): string
+    public function received(Request $request, Claim $claim, ClaimWorkflow $workflow): JsonResponse
     {
-        $months = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
-        ];
+        abort_unless((int) $claim->user_id === (int) $request->user()->id, 403);
 
-        return $date->day.' '.$months[$date->month].' '.$date->year;
+        $workflow->complete($claim->loadMissing(['user', 'brand']), $request->user(), true);
+
+        return response()->json($this->presenter->present($claim->fresh(ClaimPresenter::RELATIONS)));
     }
 }

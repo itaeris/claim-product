@@ -2,40 +2,64 @@
 import { computed, onMounted, ref } from 'vue';
 import { api } from '../api';
 import AppHeader from '../components/AppHeader.vue';
+import AppSelect from '../components/AppSelect.vue';
+import ClaimBoard from '../components/ClaimBoard.vue';
 import ProductPhoto from '../components/ProductPhoto.vue';
-import { goodsSteps, stepState } from '../claims';
-import { rupiah } from '../format';
 import { changePassword, user } from '../session';
 import { useToast } from '../toast';
 
 const { show } = useToast();
-const claims = ref([]);
-const loadingClaims = ref(true);
-const claimsError = ref('');
 const saving = ref(false);
 const error = ref('');
 const currentPassword = ref('');
 const nextPassword = ref('');
 const confirmPassword = ref('');
-const goodsTab = ref('progres');
-const activeClaims = computed(() => claims.value.filter((claim) => claim.status !== 'selesai'));
-const historyRows = computed(() => claims.value
-    .filter((claim) => claim.status === 'selesai')
-    .flatMap((claim) => (claim.items.length ? claim.items : [null]).map((item, index) => ({
-        key: `${claim.id}-${index}`,
-        claim,
-        item,
-    }))));
+
+const limits = ref(null);
+const catalog = ref(null);
+const limitError = ref('');
+const requestError = ref('');
+const sending = ref(false);
+const request = ref(blankRequest());
+const productOptions = computed(() => (catalog.value?.brands ?? []).flatMap((brand) => brand.products.map((product) => ({
+    value: product.id,
+    label: `${brand.short} · ${product.name}`,
+}))));
+
+function blankRequest() {
+    return { product_id: '', extra_qty: 1, reason: '', supervisor_name: '', supervisor_email: '' };
+}
 
 onMounted(async () => {
     try {
-        claims.value = await api.get('/api/claims');
+        [limits.value, catalog.value] = await Promise.all([
+            api.get('/api/limits'),
+            api.get('/api/catalog'),
+        ]);
     } catch (caught) {
-        claimsError.value = caught.message;
-    } finally {
-        loadingClaims.value = false;
+        limitError.value = caught.message;
     }
 });
+
+async function sendRequest() {
+    requestError.value = '';
+    sending.value = true;
+
+    try {
+        const created = await api.post('/api/limit-requests', {
+            ...request.value,
+            product_id: Number(request.value.product_id) || null,
+            extra_qty: Number(request.value.extra_qty) || 0,
+        });
+        limits.value.requests = [created, ...limits.value.requests];
+        request.value = blankRequest();
+        show('Pengajuan limit terkirim ke HR.');
+    } catch (caught) {
+        requestError.value = caught.message;
+    } finally {
+        sending.value = false;
+    }
+}
 
 async function savePassword() {
     error.value = '';
@@ -66,81 +90,88 @@ async function savePassword() {
             <div class="admin-heading">
                 <div>
                     <h1>Profil</h1>
-                    <p>Data akun dan password kamu.</p>
+                    <p>Data akun, progres pesanan, dan kuota pembelian kamu.</p>
                 </div>
             </div>
-            <section class="goods-board">
-                <div class="goods-tabs">
-                    <button type="button" class="admin-tab" :class="{ active: goodsTab === 'progres' }" @click="goodsTab = 'progres'">Progres</button>
-                    <button type="button" class="admin-tab" :class="{ active: goodsTab === 'selesai' }" @click="goodsTab = 'selesai'">Selesai</button>
+
+            <ClaimBoard />
+
+            <section class="limit-section">
+                <div class="section-title">
+                    <h2>Kuota pembelian {{ limits?.year }}</h2>
+                    <p>Maks. {{ limits?.per_sku ?? 5 }} pcs per SKU per tahun. Butuh lebih? Ajukan penambahan limit dengan persetujuan atasan.</p>
                 </div>
-                <p v-if="loadingClaims" class="empty-note">Memuat progres...</p>
-                <p v-else-if="claimsError" class="form-error">{{ claimsError }}</p>
-                <div v-else-if="goodsTab === 'selesai'" class="table-card">
-                    <div class="table-scroll">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Barang</th>
-                                    <th>Nomor</th>
-                                    <th>Tanggal</th>
-                                    <th>Jumlah</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-if="historyRows.length === 0">
-                                    <td colspan="5">Belum ada histori.</td>
-                                </tr>
-                                <tr v-for="row in historyRows" :key="row.key">
-                                    <td>
-                                        <div class="product-cell">
-                                            <ProductPhoto :src="row.item?.image_url || ''" :alt="row.item?.name || row.claim.number" />
-                                            <span>{{ row.item?.name || row.claim.number }}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ row.claim.number }}</td>
-                                    <td>{{ row.claim.submitted_label }}</td>
-                                    <td>{{ row.item?.quantity || '—' }}</td>
-                                    <td>{{ rupiah((row.item?.unit_claim_price || 0) * (row.item?.quantity || 0)) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <p v-if="limitError" class="form-error">{{ limitError }}</p>
+                <div class="limit-grid">
+                    <div class="table-card">
+                        <div class="table-scroll">
+                            <table class="data-table compact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produk</th>
+                                        <th>Terpakai</th>
+                                        <th>Kuota</th>
+                                        <th>Sisa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="!limits?.products?.length">
+                                        <td colspan="4">Belum ada pembelian tahun ini.</td>
+                                    </tr>
+                                    <tr v-for="row in limits?.products ?? []" :key="row.product_id">
+                                        <td>
+                                            <div class="product-cell">
+                                                <ProductPhoto :src="row.image_url || ''" :alt="row.name" />
+                                                <span>{{ row.name }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ row.used }}</td>
+                                        <td>{{ row.allowed }}</td>
+                                        <td><span class="status" :class="{ off: row.remaining === 0 }">{{ row.remaining }}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <ul v-if="limits?.requests?.length" class="request-list">
+                            <li v-for="item in limits.requests" :key="item.id">
+                                <div>
+                                    <strong>{{ item.product_name }} +{{ item.extra_qty }} pcs</strong>
+                                    <small>{{ item.created_label }} · atasan {{ item.supervisor_name }}<template v-if="item.review_note"> · {{ item.review_note }}</template></small>
+                                </div>
+                                <span class="status" :class="{ off: item.status === 'ditolak', warn: item.status === 'menunggu' }">{{ item.status_label }}</span>
+                            </li>
+                        </ul>
                     </div>
+                    <form class="editor" @submit.prevent="sendRequest">
+                        <h2>Form penambahan limit</h2>
+                        <label class="field">
+                            <span>Produk</span>
+                            <AppSelect v-model="request.product_id" :options="productOptions" placeholder="Pilih produk" />
+                        </label>
+                        <label class="field">
+                            <span>Tambahan (pcs)</span>
+                            <input v-model.number="request.extra_qty" type="number" min="1" max="20" required>
+                        </label>
+                        <label class="field">
+                            <span>Alasan</span>
+                            <textarea v-model="request.reason" rows="3" minlength="10" maxlength="1000" required></textarea>
+                        </label>
+                        <label class="field">
+                            <span>Nama atasan</span>
+                            <input v-model="request.supervisor_name" type="text" maxlength="120" required>
+                        </label>
+                        <label class="field">
+                            <span>Email atasan</span>
+                            <input v-model="request.supervisor_email" type="email" maxlength="255" required>
+                        </label>
+                        <p v-if="requestError" class="form-error">{{ requestError }}</p>
+                        <div class="editor-actions">
+                            <button class="primary-btn" type="submit" :disabled="sending">{{ sending ? 'Mengirim...' : 'Ajukan ke HR' }}</button>
+                        </div>
+                    </form>
                 </div>
-                <article v-else-if="activeClaims.length === 0" class="claim-card">
-                    <div class="claim-card-head">
-                        <div>
-                            <strong>Belum ada barang</strong>
-                            <small>Progres akan terisi setelah kamu mengajukan klaim.</small>
-                        </div>
-                    </div>
-                    <ol class="goods-track" aria-label="Progres barang kosong">
-                        <li v-for="step in goodsSteps" :key="step.id">{{ step.label }}</li>
-                    </ol>
-                </article>
-                <template v-else>
-                <article v-for="claim in activeClaims" :key="claim.id" class="claim-card">
-                    <div class="claim-card-head">
-                        <div class="claim-product">
-                            <div class="claim-photos">
-                                <ProductPhoto v-for="(item, index) in claim.items" :key="`${claim.id}-${index}`" :src="item.image_url || ''" :alt="item.name" />
-                            </div>
-                            <div>
-                                <strong>{{ claim.items.length ? claim.items.map((item) => `${item.name} × ${item.quantity}`).join(', ') : claim.number }}</strong>
-                                <small>{{ claim.number }} · {{ claim.submitted_label }}</small>
-                            </div>
-                        </div>
-                        <span v-if="claim.status === 'ditolak'" class="status off">Ditolak</span>
-                    </div>
-                    <ol class="goods-track" :aria-label="`Progres ${claim.number}`">
-                        <li v-for="(step, index) in goodsSteps" :key="step.id" :class="stepState(claim.status, index, goodsSteps)">
-                            {{ step.label }}
-                        </li>
-                    </ol>
-                </article>
-                </template>
             </section>
+
             <section class="profile-card">
                 <div class="profile-identity">
                     <span class="avatar">{{ user?.initials || '—' }}</span>
@@ -148,6 +179,7 @@ async function savePassword() {
                         <strong>{{ user?.name || 'Karyawan' }}</strong>
                         <small>{{ user?.email }}</small>
                         <small>{{ user?.is_admin ? 'Admin' : 'Karyawan' }}<template v-if="user?.team"> · {{ user.team }}</template></small>
+                        <small v-if="user?.employment_label || user?.company">{{ [user?.employment_label, user?.company].filter(Boolean).join(' · ') }}</small>
                     </div>
                 </div>
                 <form @submit.prevent="savePassword">

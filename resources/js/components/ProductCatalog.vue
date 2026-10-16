@@ -10,9 +10,9 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    discount: {
+    skuLimit: {
         type: Number,
-        required: true,
+        default: 5,
     },
 });
 
@@ -60,6 +60,8 @@ function openProduct(product) {
     selected.value = {
         ...product,
         brand: activeBrand.value?.name ?? '',
+        company: activeBrand.value?.company_name ?? '',
+        discount: activeBrand.value?.discount_percent ?? 0,
     };
 }
 </script>
@@ -89,7 +91,7 @@ function openProduct(product) {
                 <img v-if="brandLogo(brand)" :src="brandLogo(brand)" :alt="brand.name">
                 <template v-else>{{ brand.short }}</template>
             </span>
-            <span><strong>{{ brand.name }}</strong><small>{{ brand.subtitle }}</small></span>
+            <span><strong>{{ brand.name }}</strong><small>{{ brand.subtitle }} · diskon {{ brand.discount_percent }}%</small></span>
         </button>
     </div>
 
@@ -120,7 +122,7 @@ function openProduct(product) {
         >
             <div class="product-image">
                 <ProductPhoto :src="product.image || ''" :alt="product.name" />
-                <span class="discount">{{ discount }}% OFF</span>
+                <span class="discount">{{ activeBrand?.discount_percent }}% OFF</span>
             </div>
             <div class="product-info">
                 <span class="product-cat">{{ product.category }}</span>
@@ -139,7 +141,7 @@ function openProduct(product) {
 
     <ProductPreview
         :product="selected"
-        :discount="discount"
+        :sku-limit="skuLimit"
         @close="selected = null"
         @add="emit('add', $event)"
     />

@@ -12,6 +12,18 @@ const query = ref('');
 const saving = ref(false);
 const loading = ref(true);
 
+const employmentOptions = [
+    { value: 'tetap', label: 'Karyawan tetap' },
+    { value: 'kontrak', label: 'Kontrak' },
+    { value: 'daily_worker', label: 'Daily worker' },
+    { value: 'intern', label: 'Intern' },
+];
+const companyOptions = [
+    { value: 'PT Citra Pasifik Kosmetik', label: 'PT Citra Pasifik Kosmetik (Aeris Beauté)' },
+    { value: 'PT Kinerja Inovasi Nusantara', label: 'PT Kinerja Inovasi Nusantara (KIN + ALLY)' },
+    { value: 'PT Inovasi Alam Nusantara', label: 'PT Inovasi Alam Nusantara (From This Island)' },
+];
+
 const filtered = computed(() => {
     const term = query.value.trim().toLowerCase();
 
@@ -33,11 +45,20 @@ onMounted(async () => {
 });
 
 function openCreate() {
-    form.value = { id: null, name: '', email: '', team: '', role: 'user', password: '' };
+    form.value = { id: null, name: '', email: '', team: '', employment_type: 'tetap', company: companyOptions[0].value, role: 'user', password: '' };
 }
 
 function openEdit(person) {
-    form.value = { id: person.id, name: person.name, email: person.email, team: person.team, role: person.role, password: '' };
+    form.value = {
+        id: person.id,
+        name: person.name,
+        email: person.email,
+        team: person.team,
+        employment_type: person.employment_type || 'tetap',
+        company: person.company || companyOptions[0].value,
+        role: person.role,
+        password: '',
+    };
 }
 
 async function save() {
@@ -46,6 +67,8 @@ async function save() {
         name: form.value.name,
         email: form.value.email,
         team: form.value.team,
+        employment_type: form.value.employment_type,
+        company: form.value.company,
         role: form.value.role,
     };
 
@@ -108,6 +131,7 @@ async function remove(person) {
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Tim</th>
+                                <th>Status</th>
                                 <th>Role</th>
                                 <th></th>
                             </tr>
@@ -117,6 +141,7 @@ async function remove(person) {
                                 <td><span class="product-cell"><span>{{ person.name }}</span></span></td>
                                 <td>{{ person.email }}</td>
                                 <td>{{ person.team }}</td>
+                                <td>{{ person.employment_label || '—' }}<br><small class="claim-mini">{{ person.company || '—' }}</small></td>
                                 <td><span class="status" :class="{ off: person.role !== 'admin' }">{{ person.role === 'admin' ? 'Admin' : 'User' }}</span></td>
                                 <td class="row-actions">
                                     <button type="button" @click="openEdit(person)">Ubah</button>
@@ -140,6 +165,14 @@ async function remove(person) {
                 <label class="field">
                     <span>Tim</span>
                     <input v-model="form.team" required maxlength="120" placeholder="Marketing Team">
+                </label>
+                <label class="field">
+                    <span>Status karyawan</span>
+                    <AppSelect v-model="form.employment_type" :options="employmentOptions" />
+                </label>
+                <label class="field">
+                    <span>Perusahaan</span>
+                    <AppSelect v-model="form.company" :options="companyOptions" />
                 </label>
                 <label class="field">
                     <span>Role</span>

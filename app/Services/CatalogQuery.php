@@ -5,15 +5,21 @@ namespace App\Services;
 use App\Models\Brand;
 use App\Models\ClaimPeriod;
 use App\Models\Product;
-use Carbon\CarbonInterface;
+use App\Support\IndonesianDate;
 use Illuminate\Support\Facades\Cache;
 
 class CatalogQuery
 {
-    public function __construct(private ClaimPricing $pricing) {}
+    private const KEY = 'catalog.v2';
+
+    public function __construct(
+        private ClaimPricing $pricing,
+        private PurchaseLimit $limits,
+    ) {}
 
     public function forget(): void
     {
+        Cache::forget(self::KEY);
         Cache::forget('catalog.v1');
     }
 
@@ -22,35 +28,41 @@ class CatalogQuery
      */
     public function payload(): array
     {
-        return Cache::remember('catalog.v1', now()->addHour(), function () {
+        return Cache::remember(self::KEY, now()->addHour(), function () {
             $period = ClaimPeriod::current();
+            $brands = Brand::query()
+                ->with([
+                    'categories' => fn ($query) => $query->orderBy('sort_order'),
+                    'products' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
+                    'products.category',
+                ])
+                ->orderBy('sort_order')
+                ->get();
 
             return [
                 'period' => [
                     'name' => $period->name,
-                    'ends_label' => 'Berakhir '.$this->formatDate($period->ends_on),
-                    'discount_percent' => $period->discount_percent,
+                    'ends_label' => 'Berakhir '.IndonesianDate::date($period->ends_on),
                 ],
-                'brands' => Brand::query()
-                    ->with([
-                        'categories' => fn ($query) => $query->orderBy('sort_order'),
-                        'products' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order'),
-                        'products.category',
-                    ])
-                    ->orderBy('sort_order')
-                    ->get()
+                'max_discount_percent' => (int) $brands->max('discount_percent'),
+                'sku_limit' => $this->limits->perSku(),
+                'warehouse_address' => config('claimly.warehouse_address'),
+                'brands' => $brands
                     ->map(fn (Brand $brand) => [
                         'id' => $brand->id,
                         'name' => $brand->name,
                         'short' => $brand->short,
                         'subtitle' => $brand->subtitle,
+                        'company_name' => $brand->company_name,
+                        'discount_percent' => $brand->discount_percent,
+                        'shipping_fee' => $brand->shipping_fee,
                         'categories' => $brand->categories->pluck('name')->values()->all(),
                         'products' => $brand->products->map(fn (Product $product) => [
                             'id' => $product->id,
                             'name' => $product->name,
                             'category' => $product->category->name,
                             'price' => $product->retail_price,
-                            'claim_price' => $this->pricing->claimUnitPrice($product->retail_price, $period->discount_percent),
+                            'claim_price' => $this->pricing->claimUnitPrice($product->retail_price, $brand->discount_percent),
                             'image' => $product->image_url,
                         ])->values()->all(),
                     ])
@@ -58,25 +70,5 @@ class CatalogQuery
                     ->all(),
             ];
         });
-    }
-
-    private function formatDate(CarbonInterface $date): string
-    {
-        $months = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember',
-        ];
-
-        return $date->day.' '.$months[$date->month].' '.$date->year;
     }
 }

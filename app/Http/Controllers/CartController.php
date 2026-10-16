@@ -8,34 +8,56 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\CartPresenter;
 use App\Services\CartStore;
+use App\Services\PurchaseLimit;
 use Illuminate\Http\JsonResponse;
 
 class CartController extends Controller
 {
-    public function show(CartStore $cart, CartPresenter $presenter): JsonResponse
+    public function __construct(
+        private CartStore $cart,
+        private CartPresenter $presenter,
+        private PurchaseLimit $limits,
+    ) {}
+
+    public function show(): JsonResponse
     {
-        return response()->json($presenter->present($cart->items($this->employee())));
+        $user = $this->employee();
+
+        return response()->json($this->presenter->present($user, $this->cart->items($user)));
     }
 
-    public function store(StoreCartItemRequest $request, CartStore $cart, CartPresenter $presenter): JsonResponse
+    public function store(StoreCartItemRequest $request): JsonResponse
     {
-        $items = $cart->add($this->employee(), (int) $request->validated('product_id'));
+        $user = $this->employee();
+        $product = Product::query()->findOrFail((int) $request->validated('product_id'));
+        $nextQty = ($this->cart->items($user)[$product->id] ?? 0) + 1;
 
-        return response()->json($presenter->present($items));
+        $this->limits->ensureWithin($user, [$product->id => $nextQty], [$product->id => $product->name]);
+        $items = $this->cart->add($user, $product->id);
+
+        return response()->json($this->presenter->present($user, $items));
     }
 
-    public function update(UpdateCartItemRequest $request, Product $product, CartStore $cart, CartPresenter $presenter): JsonResponse
+    public function update(UpdateCartItemRequest $request, Product $product): JsonResponse
     {
-        $items = $cart->setQty($this->employee(), $product->id, (int) $request->validated('qty'));
+        $user = $this->employee();
+        $qty = (int) $request->validated('qty');
 
-        return response()->json($presenter->present($items));
+        if ($qty > 0) {
+            $this->limits->ensureWithin($user, [$product->id => $qty], [$product->id => $product->name]);
+        }
+
+        $items = $this->cart->setQty($user, $product->id, $qty);
+
+        return response()->json($this->presenter->present($user, $items));
     }
 
-    public function destroy(Product $product, CartStore $cart, CartPresenter $presenter): JsonResponse
+    public function destroy(Product $product): JsonResponse
     {
-        $items = $cart->remove($this->employee(), $product->id);
+        $user = $this->employee();
+        $items = $this->cart->remove($user, $product->id);
 
-        return response()->json($presenter->present($items));
+        return response()->json($this->presenter->present($user, $items));
     }
 
     private function employee(): User

@@ -8,9 +8,9 @@ const props = defineProps({
         type: Object,
         default: null,
     },
-    discount: {
+    skuLimit: {
         type: Number,
-        required: true,
+        default: 5,
     },
 });
 
@@ -51,7 +51,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             <article class="preview-card" role="dialog" aria-modal="true" :aria-label="product.name">
                 <div class="preview-photo">
                     <ProductPhoto :src="product.image || ''" :alt="product.name" />
-                    <span class="discount">{{ discount }}% OFF</span>
+                    <span class="discount">{{ product.discount }}% OFF</span>
                 </div>
                 <div class="preview-body">
                     <button ref="closeButton" class="preview-close" type="button" aria-label="Tutup" @click="emit('close')">×</button>
@@ -65,7 +65,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         </div>
                         <div>
                             <dt>Diskon karyawan</dt>
-                            <dd>{{ discount }}%</dd>
+                            <dd>{{ product.discount }}%</dd>
                         </div>
                         <div>
                             <dt>Hemat</dt>
@@ -76,6 +76,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <dd>{{ rupiah(product.claim_price) }}</dd>
                         </div>
                     </dl>
+                    <p class="preview-note">Maks. {{ skuLimit }} pcs per SKU per tahun · invoice dari {{ product.company || product.brand }}</p>
                     <button class="claim-btn preview-add" type="button" @click="emit('add', product)">Tambahkan ke klaim</button>
                 </div>
             </article>

@@ -1,42 +1,56 @@
-export const claimSteps = [
-    { id: 'diajukan', label: 'Diajukan' },
-    { id: 'diproses', label: 'Diproses' },
-    { id: 'disetujui', label: 'Disetujui' },
-    { id: 'selesai', label: 'Selesai' },
-];
+const stepOf = {
+    cek_stok: 0,
+    stok_kosong: 0,
+    menunggu_pembayaran: 1,
+    kurang_bayar: 1,
+    verifikasi_pembayaran: 2,
+    disiapkan: 3,
+    dikirim: 4,
+    siap_diambil: 4,
+    selesai: 5,
+};
 
-export const goodsSteps = [
-    { id: 'diajukan', label: 'Belum dibayar' },
-    { id: 'diproses', label: 'Proses' },
-    { id: 'disetujui', label: 'Sudah dibayar' },
-    { id: 'selesai', label: 'Selesai' },
-];
+const warnings = ['stok_kosong', 'kurang_bayar'];
 
-export const claimStatuses = [
-    ...claimSteps,
-    { id: 'ditolak', label: 'Ditolak' },
-];
+export const awaitingPayment = ['menunggu_pembayaran', 'kurang_bayar'];
 
-export function statusLabel(status) {
-    return goodsSteps.find((item) => item.id === status)?.label
-        ?? claimStatuses.find((item) => item.id === status)?.label
-        ?? status;
+export function claimSteps(claim) {
+    return [
+        { id: 'cek_stok', label: 'Cek stok' },
+        { id: 'pembayaran', label: 'Pembayaran' },
+        { id: 'verifikasi', label: 'Verifikasi' },
+        { id: 'disiapkan', label: 'Disiapkan' },
+        { id: 'diserahkan', label: claim?.fulfillment === 'delivery' ? 'Dikirim' : 'Siap diambil' },
+        { id: 'selesai', label: 'Selesai' },
+    ];
 }
 
-export function stepState(status, index, steps = claimSteps) {
-    if (status === 'ditolak') {
+export function stepState(claim, index) {
+    if (claim.status === 'dibatalkan') {
         return 'rejected';
     }
 
-    const current = steps.findIndex((step) => step.id === status);
+    const current = stepOf[claim.status] ?? 0;
 
-    if (index < current) {
+    if (claim.status === 'selesai' || index < current) {
         return 'done';
     }
 
     if (index === current) {
-        return 'current';
+        return warnings.includes(claim.status) ? 'current warn' : 'current';
     }
 
     return '';
+}
+
+export function statusTone(status) {
+    if (status === 'dibatalkan') {
+        return 'off';
+    }
+
+    return warnings.includes(status) ? 'warn' : '';
+}
+
+export function isFinished(claim) {
+    return claim.status === 'selesai' || claim.status === 'dibatalkan';
 }

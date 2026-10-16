@@ -11,15 +11,19 @@ const { show } = useToast();
 const catalog = ref(null);
 const cart = ref({
     items: [],
+    groups: [],
     count: 0,
     retail_total: 0,
     saving_total: 0,
     claim_total: 0,
-    discount_percent: 30,
+    delivery_fee_total: 0,
+    sku_limit: 5,
 });
 const loadError = ref('');
 const submitting = ref(false);
 const cartOpen = ref(false);
+const fulfillment = ref('pickup');
+const address = ref('');
 const claimCart = reactive({
     count: computed(() => cart.value.count),
     openCart() {
@@ -54,7 +58,7 @@ function addProduct(product) {
     return enqueue(async () => {
         try {
             cart.value = await api.post('/api/cart/items', { product_id: product.id });
-            show('Produk ditambahkan ke klaim');
+            show('Produk ditambahkan ke keranjang');
         } catch (error) {
             show(error.message);
         }
@@ -94,8 +98,12 @@ function submitClaim() {
 
     return enqueue(async () => {
         try {
-            const result = await api.post('/api/claims');
+            const result = await api.post('/api/claims', {
+                fulfillment: fulfillment.value,
+                address: fulfillment.value === 'delivery' ? address.value : null,
+            });
             cart.value = result.cart;
+            cartOpen.value = false;
             show(result.message);
         } catch (error) {
             show(error.message);
@@ -111,20 +119,23 @@ function submitClaim() {
         <AppHeader />
         <div class="layout" :class="{ 'cart-open': cartOpen }">
             <main>
-                <HeroBanner :discount="catalog?.period?.discount_percent ?? 30" />
+                <HeroBanner :discount="catalog?.max_discount_percent ?? 40" :sku-limit="catalog?.sku_limit ?? 5" />
                 <ProductCatalog
                     v-if="catalog"
                     :brands="catalog.brands"
-                    :discount="catalog.period.discount_percent"
+                    :sku-limit="catalog.sku_limit"
                     @add="addProduct"
                 />
                 <div v-else class="empty loading-note">{{ loadError || 'Memuat katalog...' }}</div>
             </main>
             <div class="cart-slot">
                 <ClaimSidebar
+                    v-model:fulfillment="fulfillment"
+                    v-model:address="address"
                     :open="cartOpen"
                     :cart="cart"
                     :period="catalog?.period"
+                    :warehouse-address="catalog?.warehouse_address || ''"
                     :submitting="submitting"
                     @close="cartOpen = false"
                     @change="changeQty"

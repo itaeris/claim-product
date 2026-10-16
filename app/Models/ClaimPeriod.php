@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'starts_on', 'ends_on', 'discount_percent'])]
+#[Fillable(['name', 'starts_on', 'ends_on'])]
 class ClaimPeriod extends Model
 {
     /**
@@ -17,7 +17,6 @@ class ClaimPeriod extends Model
         return [
             'starts_on' => 'date',
             'ends_on' => 'date',
-            'discount_percent' => 'integer',
         ];
     }
 

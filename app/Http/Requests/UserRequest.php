@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,8 @@ class UserRequest extends FormRequest
             ],
             'team' => ['required', 'string', 'max:120'],
             'role' => ['required', Rule::in(['user', 'admin'])],
+            'employment_type' => ['required', Rule::in(array_keys(User::EMPLOYMENT_TYPES))],
+            'company' => ['required', 'string', 'max:160'],
             'password' => [$this->route('user') ? 'nullable' : 'required', 'string', 'min:8', 'max:255'],
         ];
     }
@@ -44,6 +47,9 @@ class UserRequest extends FormRequest
             'team.required' => 'Tim wajib diisi.',
             'role.required' => 'Role wajib dipilih.',
             'role.in' => 'Role harus user atau admin.',
+            'employment_type.required' => 'Status karyawan wajib dipilih.',
+            'employment_type.in' => 'Status karyawan tidak valid.',
+            'company.required' => 'Perusahaan wajib dipilih.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 8 karakter.',
         ];

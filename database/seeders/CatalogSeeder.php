@@ -20,6 +20,8 @@ class CatalogSeeder extends Seeder
                 'name' => 'Aeris S.',
                 'team' => 'Marketing Team',
                 'initials' => 'AS',
+                'employment_type' => 'tetap',
+                'company' => 'PT Citra Pasifik Kosmetik',
                 'is_admin' => true,
                 'password' => 'password',
                 'email_verified_at' => now(),
@@ -32,6 +34,8 @@ class CatalogSeeder extends Seeder
                 'name' => 'Dina K.',
                 'team' => 'Operations',
                 'initials' => 'DK',
+                'employment_type' => 'kontrak',
+                'company' => 'PT Kinerja Inovasi Nusantara',
                 'is_admin' => false,
                 'password' => 'password',
                 'email_verified_at' => now(),
@@ -44,6 +48,10 @@ class CatalogSeeder extends Seeder
                 [
                     'short' => $brandData['short'],
                     'subtitle' => $brandData['subtitle'],
+                    'discount_percent' => $brandData['discount_percent'],
+                    'shipping_fee' => 20000,
+                    'company_name' => $brandData['company_name'],
+                    'bank_account_name' => $brandData['company_name'],
                     'sort_order' => $brandIndex,
                 ],
             );
@@ -77,15 +85,14 @@ class CatalogSeeder extends Seeder
             [
                 'starts_on' => '2026-10-01',
                 'ends_on' => '2026-10-31',
-                'discount_percent' => 30,
             ],
         );
 
-        Cache::forget('catalog.v1');
+        Cache::forget('catalog.v2');
     }
 
     /**
-     * @return array<int, array{name: string, short: string, subtitle: string, categories: array<int, string>, products: array<int, array{0: string, 1: string, 2: int, 3: string}>}>
+     * @return array<int, array{name: string, short: string, subtitle: string, discount_percent: int, company_name: string, categories: array<int, string>, products: array<int, array{0: string, 1: string, 2: int, 3: string}>}>
      */
     private function brands(): array
     {
@@ -94,6 +101,8 @@ class CatalogSeeder extends Seeder
                 'name' => 'Aeris Beauté',
                 'short' => 'AB',
                 'subtitle' => 'Beauty tools & makeup',
+                'discount_percent' => 40,
+                'company_name' => 'PT Citra Pasifik Kosmetik',
                 'categories' => ['Puffs', 'Brush Series', 'Coal Series', 'Ombré Series', 'Brush Set', 'Cleansers'],
                 'products' => [
                     ['Cloud Control Puff', 'Puffs', 69000, $this->image('photo-1596462502278-27bfdc403348')],
@@ -111,6 +120,8 @@ class CatalogSeeder extends Seeder
                 'name' => 'From This Island',
                 'short' => 'FTI',
                 'subtitle' => 'Skincare & makeup',
+                'discount_percent' => 30,
+                'company_name' => 'PT Inovasi Alam Nusantara',
                 'categories' => ['Lip Care', 'Toner', 'Moisturizer', 'Serum', 'Cleanser'],
                 'products' => [
                     ['Illipe Plumping Lip Butter — Classic Nude', 'Lip Care', 149000, $this->image('photo-1586495777744-4413f21062fa')],
@@ -127,6 +138,8 @@ class CatalogSeeder extends Seeder
                 'name' => 'KIN + ALLY',
                 'short' => 'K+A',
                 'subtitle' => 'Activewear',
+                'discount_percent' => 30,
+                'company_name' => 'PT Kinerja Inovasi Nusantara',
                 'categories' => ['Poppy', 'Azalea', 'Legging Full', 'Legging 7/8', 'Capri', 'Run Short'],
                 'products' => [
                     ['Poppy Racerback Bra — Burgundy', 'Poppy', 299000, $this->image('photo-1517836357463-d25dfeac3438')],
