@@ -752,11 +752,21 @@ a.ghost-btn { display: inline-flex; align-items: center; text-decoration: none; 
     .login-footer-sheet { display: block; margin-top: 8px; padding: 8px 20px 18px; text-align: center; color: #98a19c; }
 }
 @media (max-width: 760px) {
-    header { padding: 0 18px; height:70px; }
-    .profile-copy, .profile-caret { display:none; }
-    .terms-grid { grid-template-columns: 1fr; }
-    .quota-pill { padding: 0 10px; }
+    header { padding: 0 12px; gap: 8px; height: 64px; flex-basis: 64px; width: 100%; min-width: 0; }
+    .brandmark { gap: 0; min-width: 0; }
+    .brandmark-name { display: none; }
+    .brandmark-logo { width: 36px; height: 36px; border-radius: 12px; box-shadow: none; }
+    .header-actions { gap: 6px; min-width: 0; }
+    .icon-btn { width: 36px; height: 36px; }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .avatar { width: 36px; height: 36px; }
+    .profile { padding: 0; }
+    .profile-copy, .profile-caret { display: none; }
+    .quota-pill { height: 36px; padding: 0 8px; gap: 6px; }
+    .quota-dots { gap: 2px; }
+    .quota-dots i { width: 5px; height: 14px; }
     .quota-text small { display: none; }
+    .terms-grid { grid-template-columns: 1fr; }
     .limit-stats { width: 100%; }
     .limit-stats div { flex: 1; min-width: 0; }
     .goods-track li { font-size: 10px; }
