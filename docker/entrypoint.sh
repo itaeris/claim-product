@@ -23,7 +23,6 @@ php artisan storage:link --force --no-interaction
 
 echo "Menjalankan migrasi. Tabel baru ditambahkan, migrasi yang sudah jalan dilewati."
 php artisan migrate --force --no-interaction
-php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
 php artisan optimize --no-interaction
 

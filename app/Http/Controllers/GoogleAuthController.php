@@ -32,11 +32,11 @@ class GoogleAuthController extends Controller
             return redirect('/login?google=failed');
         }
 
-        $email = strtolower((string) $google->getEmail());
+        $email = strtolower(trim((string) $google->getEmail()));
         $googleId = (string) $google->getId();
 
-        if ($email === '' || ! $this->domainAllowed($email)) {
-            return redirect('/login?google=domain');
+        if ($email === '') {
+            return redirect('/login?google=failed');
         }
 
         $user = User::query()->whereRaw('LOWER(email) = ?', [$email])->first();
@@ -67,20 +67,6 @@ class GoogleAuthController extends Controller
         $request->session()->regenerate();
 
         return redirect($this->intendedPath($request));
-    }
-
-    private function domainAllowed(string $email): bool
-    {
-        $allowed = array_values(array_filter(array_map(
-            fn (string $domain) => strtolower(ltrim(trim($domain), '@')),
-            explode(',', (string) config('services.google.allowed_domains')),
-        )));
-
-        if ($allowed === []) {
-            return true;
-        }
-
-        return in_array(strtolower((string) str($email)->after('@')), $allowed, true);
     }
 
     private function intendedPath(Request $request): string

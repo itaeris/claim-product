@@ -142,7 +142,7 @@ class AuthTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'stranger@gmail.com']);
     }
 
-    public function test_google_login_can_be_limited_to_company_domains(): void
+    public function test_registered_employees_can_sign_in_with_google_on_any_domain(): void
     {
         config(['services.google.allowed_domains' => 'aeris-fti.com']);
 
@@ -151,10 +151,9 @@ class AuthTest extends TestCase
             'email' => config('claimly.employee_email'),
         ]));
 
-        $this->get('/auth/google/callback')
-            ->assertRedirect('/login?google=domain');
+        $this->get('/auth/google/callback')->assertRedirect('/');
 
-        $this->assertGuest();
+        $this->assertAuthenticated();
     }
 
     public function test_non_admins_cannot_manage_the_catalog(): void
