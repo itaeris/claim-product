@@ -67,8 +67,10 @@ for _ in $(seq 1 40); do
 done
 
 if [ "$ready" -ne 1 ]; then
-    echo "Container belum siap. Log terakhir:"
+    echo "Container belum siap. Log proses terakhir:"
     docker logs "$NAME" --tail 120 || true
+    echo "Log Laravel terakhir:"
+    docker exec "$NAME" sh -c 'tail -n 120 storage/logs/laravel.log 2>/dev/null || true' || true
     exit 1
 fi
 
