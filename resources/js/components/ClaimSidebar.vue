@@ -37,6 +37,8 @@ const groups = computed(() => (props.cart.groups ?? []).map((group) => ({
 })));
 const shippingTotal = computed(() => (fulfillment.value === 'delivery' ? props.cart.delivery_fee_total ?? 0 : 0));
 const grandTotal = computed(() => props.cart.claim_total + shippingTotal.value);
+const limit = computed(() => props.cart.limit);
+const quotaLeft = computed(() => (limit.value ? Math.max(0, limit.value.remaining - props.cart.count) : null));
 
 function onKeydown(event) {
     if (event.key === 'Escape' && props.open) {
@@ -69,7 +71,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
             <div>
                 <strong>{{ period?.name || 'Employee purchase' }}</strong>
-                <span>Maks. {{ cart.sku_limit ?? 5 }} pcs per SKU per tahun</span>
+                <span v-if="limit">Sisa kuota {{ quotaLeft }}/{{ limit.total }} pcs · semua brand, reset {{ limit.resets_label }}</span>
             </div>
         </div>
         <div class="claim-items">
@@ -97,8 +99,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         <div class="qty">
                             <button type="button" @click="emit('change', item, -1)">−</button>
                             <em>{{ item.qty }}</em>
-                            <button type="button" :disabled="item.qty >= item.limit_remaining" @click="emit('change', item, 1)">+</button>
-                            <small class="qty-limit">kuota {{ item.limit_remaining }}</small>
+                            <button type="button" :disabled="quotaLeft === 0" @click="emit('change', item, 1)">+</button>
                         </div>
                     </div>
                     <button class="remove" type="button" aria-label="Hapus" @click="emit('remove', item)">×</button>

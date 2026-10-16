@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, provide, reactive, ref } from 'vue';
+import { computed, onMounted, provide, reactive, ref, watch } from 'vue';
 import { api } from '../api';
+import { loadQuota, quota } from '../quota';
 import { useToast } from '../toast';
 import AppHeader from '../components/AppHeader.vue';
 import ClaimSidebar from '../components/ClaimSidebar.vue';
@@ -17,23 +18,21 @@ const cart = ref({
     saving_total: 0,
     claim_total: 0,
     delivery_fee_total: 0,
-    sku_limit: 5,
+    limit: null,
 });
 const loadError = ref('');
 const submitting = ref(false);
 const cartOpen = ref(false);
 const fulfillment = ref('pickup');
 const address = ref('');
-const limits = ref(null);
-const usedBySku = computed(() => Object.fromEntries((limits.value?.products ?? []).map((row) => [row.product_id, row.used])));
+const quotaLeft = computed(() => (cart.value.limit ? Math.max(0, cart.value.limit.remaining - cart.value.count) : null));
 
-async function loadLimits() {
-    try {
-        limits.value = await api.get('/api/limits');
-    } catch {
-        limits.value = null;
+watch(cart, ({ limit, count }) => {
+    if (limit && quota.value) {
+        Object.assign(quota.value, { total: limit.total, used: limit.used, remaining: limit.remaining, in_cart: count });
     }
-}
+});
+
 const claimCart = reactive({
     count: computed(() => cart.value.count),
     openCart() {
@@ -59,7 +58,6 @@ onMounted(async () => {
         ]);
         catalog.value = catalogData;
         cart.value = cartData;
-        loadLimits();
     } catch (error) {
         loadError.value = error.message;
     }
@@ -116,7 +114,7 @@ function submitClaim() {
             cart.value = result.cart;
             cartOpen.value = false;
             show(result.message);
-            loadLimits();
+            loadQuota(true);
         } catch (error) {
             show(error.message);
         } finally {
@@ -131,13 +129,12 @@ function submitClaim() {
         <AppHeader />
         <div class="layout" :class="{ 'cart-open': cartOpen }">
             <main>
-                <HeroBanner :discount="catalog?.max_discount_percent ?? 40" :sku-limit="catalog?.sku_limit ?? 5" />
+                <HeroBanner :discount="catalog?.max_discount_percent ?? 40" :yearly-limit="catalog?.yearly_limit ?? 5" />
                 <ProductCatalog
                     v-if="catalog"
                     :brands="catalog.brands"
-                    :sku-limit="catalog.sku_limit"
-                    :used="usedBySku"
-                    :resets-label="limits?.resets_label || ''"
+                    :quota-left="quotaLeft"
+                    :limit="cart.limit"
                     @add="addProduct"
                 />
                 <div v-else class="empty loading-note">{{ loadError || 'Memuat katalog...' }}</div>

@@ -45,7 +45,7 @@ class ClaimFlowTest extends TestCase
             ->assertJsonPath('period.name', 'Periode Oktober 2026')
             ->assertJsonPath('period.ends_label', 'Berakhir 31 Oktober 2026')
             ->assertJsonPath('max_discount_percent', 40)
-            ->assertJsonPath('sku_limit', 5)
+            ->assertJsonPath('yearly_limit', 5)
             ->assertJsonPath('brands.0.name', 'Aeris Beauté')
             ->assertJsonPath('brands.0.discount_percent', 40)
             ->assertJsonPath('brands.0.company_name', 'PT Citra Pasifik Kosmetik')
@@ -118,35 +118,54 @@ class ClaimFlowTest extends TestCase
         $this->assertDatabaseHas('claims', ['fulfillment' => 'pickup', 'shipping_fee' => 0, 'shipping_address' => null]);
     }
 
-    public function test_each_sku_is_limited_to_five_pieces_and_resets_on_january_first(): void
+    public function test_one_yearly_quota_of_five_pieces_is_shared_by_every_brand(): void
     {
         $puff = $this->product('Cloud Control Puff');
         $legging = $this->product('Euphoric Compression Legging');
+        $brushes = $this->product('Aeris Beauté 8 Brush Set');
 
         $this->actingAs($this->employee)
             ->patchJson('/api/cart/items/'.$puff->id, ['qty' => 6])
             ->assertStatus(422)
             ->assertJsonValidationErrors('limit');
 
-        $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 5])->assertOk();
-        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 5])->assertOk();
+        $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 2])
+            ->assertOk()
+            ->assertJsonPath('limit.total', 5)
+            ->assertJsonPath('limit.remaining', 5);
+        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 4])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('limit');
+        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 1])->assertOk();
         $this->postJson('/api/claims')->assertCreated();
 
         $this->postJson('/api/cart/items', ['product_id' => $puff->id])
+            ->assertOk()
+            ->assertJsonPath('limit.used', 3)
+            ->assertJsonPath('limit.remaining', 2);
+        $this->postJson('/api/cart/items', ['product_id' => $puff->id])->assertOk();
+        $this->postJson('/api/cart/items', ['product_id' => $brushes->id])
             ->assertStatus(422)
             ->assertJsonValidationErrors('limit');
-        $this->postJson('/api/cart/items', ['product_id' => $this->product('Aeris Beauté 8 Brush Set')->id])->assertOk();
 
         $this->getJson('/api/limits')
             ->assertOk()
             ->assertJsonPath('year', 2026)
-            ->assertJsonPath('per_sku', 5)
+            ->assertJsonPath('total', 5)
+            ->assertJsonPath('used', 3)
+            ->assertJsonPath('remaining', 2)
+            ->assertJsonPath('in_cart', 2)
             ->assertJsonPath('resets_label', '1 Januari 2027')
-            ->assertJsonPath('totals.skus', 2)
-            ->assertJsonPath('totals.pcs', 10)
-            ->assertJsonPath('totals.full', 2)
-            ->assertJsonPath('products.0.used', 5)
-            ->assertJsonPath('products.0.remaining', 0);
+            ->assertJsonPath('brands.0.short', 'AB')
+            ->assertJsonPath('brands.0.qty', 2)
+            ->assertJsonPath('brands.1.short', 'K+A')
+            ->assertJsonPath('products.0.name', 'Cloud Control Puff')
+            ->assertJsonPath('products.0.qty', 2);
+
+        $this->postJson('/api/claims')->assertCreated();
+        $this->postJson('/api/cart/items', ['product_id' => $legging->id])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.limit.0', 'Kuota pembelian tahun ini sudah habis (5 pcs). Kuota reset otomatis 1 Januari 2027.');
 
         $this->travelTo('2026-12-31 16:59:00');
         $this->postJson('/api/cart/items', ['product_id' => $puff->id])->assertStatus(422);
@@ -156,7 +175,8 @@ class ClaimFlowTest extends TestCase
         $this->getJson('/api/limits')
             ->assertOk()
             ->assertJsonPath('year', 2027)
-            ->assertJsonPath('totals.pcs', 0);
+            ->assertJsonPath('used', 0)
+            ->assertJsonPath('remaining', 5);
     }
 
     public function test_payment_flow_handles_underpayment_overpayment_and_delivery(): void

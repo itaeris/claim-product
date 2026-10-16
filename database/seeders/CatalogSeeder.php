@@ -94,7 +94,7 @@ class CatalogSeeder extends Seeder
             ],
         );
 
-        Cache::forget('catalog.v2');
+        Cache::forget('catalog.v3');
     }
 
     /**

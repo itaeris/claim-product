@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ClaimItem;
 use App\Models\User;
 use App\Support\IndonesianDate;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
@@ -12,9 +13,9 @@ class PurchaseLimit
 {
     private const TIMEZONE = 'Asia/Jakarta';
 
-    public function perSku(): int
+    public function yearly(): int
     {
-        return max(1, (int) config('claimly.sku_yearly_limit', 5));
+        return max(1, (int) config('claimly.yearly_limit', 5));
     }
 
     public function currentYear(): int
@@ -33,26 +34,24 @@ class PurchaseLimit
     }
 
     /**
-     * Pieces bought per product in the calendar year (WIB), excluding cancelled orders.
-     *
-     * @param  array<int, int>|null  $productIds  null for every product
-     * @return array<int, int>
+     * Pieces bought in the calendar year (WIB) across every brand, excluding cancelled orders.
      */
-    public function used(User $user, ?array $productIds = null, ?int $year = null): array
+    public function used(User $user, ?int $year = null): int
     {
-        if ($productIds === []) {
-            return [];
-        }
+        return (int) $this->purchases($user, $year)->sum('claim_items.quantity');
+    }
 
-        $year ??= $this->currentYear();
+    public function remaining(User $user): int
+    {
+        return max(0, $this->yearly() - $this->used($user));
+    }
 
-        return ClaimItem::query()
-            ->join('claims', 'claims.id', '=', 'claim_items.claim_id')
-            ->where('claims.user_id', $user->id)
-            ->where('claims.status', '!=', 'dibatalkan')
-            ->where('claims.submitted_at', '>=', $this->resetsOn($year - 1)->utc())
-            ->where('claims.submitted_at', '<', $this->resetsOn($year)->utc())
-            ->when($productIds !== null, fn ($query) => $query->whereIn('claim_items.product_id', $productIds))
+    /**
+     * @return array<int, int> product id => pieces
+     */
+    public function usedByProduct(User $user, ?int $year = null): array
+    {
+        return $this->purchases($user, $year)
             ->groupBy('claim_items.product_id')
             ->selectRaw('claim_items.product_id as product_id, SUM(claim_items.quantity) as qty')
             ->pluck('qty', 'product_id')
@@ -61,48 +60,48 @@ class PurchaseLimit
     }
 
     /**
-     * @param  array<int, int>  $productIds
-     * @return array<int, array{used: int, allowed: int, remaining: int}>
+     * @return array{total: int, used: int, remaining: int, year: int, resets_label: string}
      */
-    public function summary(User $user, array $productIds, ?int $year = null): array
+    public function status(User $user): array
     {
-        $used = $this->used($user, $productIds, $year);
-        $allowed = $this->perSku();
-        $summary = [];
+        $used = $this->used($user);
 
-        foreach ($productIds as $productId) {
-            $taken = $used[$productId] ?? 0;
-            $summary[$productId] = [
-                'used' => $taken,
-                'allowed' => $allowed,
-                'remaining' => max(0, $allowed - $taken),
-            ];
+        return [
+            'total' => $this->yearly(),
+            'used' => $used,
+            'remaining' => max(0, $this->yearly() - $used),
+            'year' => $this->currentYear(),
+            'resets_label' => $this->resetsLabel(),
+        ];
+    }
+
+    public function ensureWithin(User $user, int $pieces): void
+    {
+        $remaining = $this->remaining($user);
+
+        if ($pieces <= $remaining) {
+            return;
         }
 
-        return $summary;
+        throw ValidationException::withMessages([
+            'limit' => $remaining > 0
+                ? "Sisa kuota pembelian tahun ini {$remaining} pcs (maks. {$this->yearly()} pcs per tahun untuk semua brand)."
+                : "Kuota pembelian tahun ini sudah habis ({$this->yearly()} pcs). Kuota reset otomatis {$this->resetsLabel()}.",
+        ]);
     }
 
     /**
-     * @param  array<int, int>  $quantities  product id => qty
-     * @param  array<int, string>  $names  product id => name
+     * @return Builder<ClaimItem>
      */
-    public function ensureWithin(User $user, array $quantities, array $names = []): void
+    private function purchases(User $user, ?int $year): Builder
     {
-        $summary = $this->summary($user, array_keys($quantities));
-        $reset = $this->resetsLabel();
+        $year ??= $this->currentYear();
 
-        foreach ($quantities as $productId => $qty) {
-            $remaining = $summary[$productId]['remaining'] ?? $this->perSku();
-
-            if ($qty > $remaining) {
-                $name = $names[$productId] ?? 'produk ini';
-
-                throw ValidationException::withMessages([
-                    'limit' => $remaining > 0
-                        ? "Sisa kuota {$name} tahun ini {$remaining} pcs (maksimal {$this->perSku()} pcs per SKU)."
-                        : "Kuota {$name} tahun ini sudah habis (maksimal {$this->perSku()} pcs per SKU). Kuota reset otomatis {$reset}.",
-                ]);
-            }
-        }
+        return ClaimItem::query()
+            ->join('claims', 'claims.id', '=', 'claim_items.claim_id')
+            ->where('claims.user_id', $user->id)
+            ->where('claims.status', '!=', 'dibatalkan')
+            ->where('claims.submitted_at', '>=', $this->resetsOn($year - 1)->utc())
+            ->where('claims.submitted_at', '<', $this->resetsOn($year)->utc());
     }
 }

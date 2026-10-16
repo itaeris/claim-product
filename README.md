@@ -63,7 +63,7 @@ Seeder juga mengisi tiga brand beserta ketentuannya, produk, dan periode Oktober
 | From This Island | PT Inovasi Alam Nusantara    | 30%             |
 | KIN + ALLY       | PT Kinerja Inovasi Nusantara | 30%             |
 
-Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan boleh membeli maksimal 5 pcs per SKU per tahun, sama untuk semua brand. Kuota reset otomatis setiap 1 Januari pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
+Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan punya satu kuota 5 pcs per tahun yang dipakai bersama untuk semua brand dan produk, jadi barang yang sama boleh dibeli berulang selama kuotanya masih ada. Kuota reset otomatis setiap 1 Januari pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
 
 ## Alur pesanan
 
@@ -75,7 +75,7 @@ Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan
 6. Gudang menyiapkan barang, lalu mengirim (dengan nomor resi opsional) atau menandai siap diambil.
 7. Karyawan menekan "Barang sudah diterima", atau admin menandai selesai.
 
-Karyawan melihat grafik kuota per SKU di Profil (terpakai, sisa, dan tanggal reset). Kartu produk di katalog juga menampilkan sisa kuota, dan tombol tambah mati jika kuota SKU itu habis. Pesanan yang dibatalkan tidak dihitung ke kuota.
+Sisa kuota tampil di header (5 balok: terpakai, di keranjang, dan sisa). Profil menampilkan grafik kuota per brand, daftar produk yang sudah dibeli, dan tanggal reset. Tombol tambah di katalog dan keranjang mati begitu kuota habis, termasuk barang yang masih di keranjang. Pesanan yang dibatalkan tidak dihitung ke kuota.
 
 Invoice bisa dicetak atau disimpan sebagai PDF di `/invoices/{id}` setelah stok dicek. Bukti transfer disimpan di disk privat dan hanya bisa dibuka pemilik pesanan atau admin.
 
@@ -89,7 +89,7 @@ Karyawan mendapat notifikasi di lonceng header dan email di setiap perubahan sta
 | `LARK_WEBHOOK_SECRET`      | Signature secret bot, jika diaktifkan di Lark.     |
 | `CLAIM_NOTIFY_MAIL`        | Email ke karyawan (default `true`).                |
 | `CLAIM_NOTIFY_OPS_MAIL`    | Email ke admin (default `true`).                   |
-| `CLAIM_SKU_YEARLY_LIMIT`   | Limit pcs per SKU per tahun (default `5`).         |
+| `CLAIM_YEARLY_LIMIT`       | Kuota pcs per tahun, semua brand (default `5`).    |
 | `CLAIM_WAREHOUSE_ADDRESS`  | Alamat pickup yang tampil di keranjang dan invoice. |
 
 Email memakai pengaturan `MAIL_*` biasa. Dengan `MAIL_MAILER=log`, email ditulis ke `storage/logs/laravel.log`.

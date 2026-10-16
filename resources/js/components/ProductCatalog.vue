@@ -10,23 +10,17 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    skuLimit: {
+    quotaLeft: {
         type: Number,
-        default: 5,
+        default: null,
     },
-    used: {
+    limit: {
         type: Object,
-        default: () => ({}),
-    },
-    resetsLabel: {
-        type: String,
-        default: '',
+        default: null,
     },
 });
 
-function remaining(product) {
-    return Math.max(0, props.skuLimit - (props.used[product.id] ?? 0));
-}
+const quotaFull = computed(() => props.quotaLeft === 0);
 
 const emit = defineEmits(['add']);
 
@@ -74,7 +68,6 @@ function openProduct(product) {
         brand: activeBrand.value?.name ?? '',
         company: activeBrand.value?.company_name ?? '',
         discount: activeBrand.value?.discount_percent ?? 0,
-        remaining: remaining(product),
     };
 }
 </script>
@@ -136,9 +129,6 @@ function openProduct(product) {
             <div class="product-image">
                 <ProductPhoto :src="product.image || ''" :alt="product.name" />
                 <span class="discount">{{ activeBrand?.discount_percent }}% OFF</span>
-                <span v-if="used[product.id]" class="quota-chip" :class="{ full: remaining(product) === 0 }">
-                    {{ remaining(product) ? `Sisa ${remaining(product)}/${skuLimit}` : 'Kuota habis' }}
-                </span>
             </div>
             <div class="product-info">
                 <span class="product-cat">{{ product.category }}</span>
@@ -148,7 +138,14 @@ function openProduct(product) {
                         <small>{{ rupiah(product.price) }}</small>
                         <strong>{{ rupiah(product.claim_price) }}</strong>
                     </div>
-                    <button class="add-btn" type="button" :disabled="remaining(product) === 0" :aria-label="`Tambahkan ${product.name}`" @click.stop="emit('add', product)">+</button>
+                    <button
+                        class="add-btn"
+                        type="button"
+                        :disabled="quotaFull"
+                        :aria-label="`Tambahkan ${product.name}`"
+                        :data-tooltip="quotaFull ? 'Kuota tahun ini habis' : null"
+                        @click.stop="emit('add', product)"
+                    >+</button>
                 </div>
             </div>
         </article>
@@ -157,8 +154,8 @@ function openProduct(product) {
 
     <ProductPreview
         :product="selected"
-        :sku-limit="skuLimit"
-        :resets-label="resetsLabel"
+        :quota-left="quotaLeft"
+        :limit="limit"
         @close="selected = null"
         @add="emit('add', $event)"
     />

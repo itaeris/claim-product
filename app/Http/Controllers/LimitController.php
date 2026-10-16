@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\CartStore;
 use App\Services\PurchaseLimit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LimitController extends Controller
 {
-    public function index(Request $request, PurchaseLimit $limits): JsonResponse
+    public function index(Request $request, PurchaseLimit $limits, CartStore $cart): JsonResponse
     {
+        $user = $request->user();
         $year = $limits->currentYear();
-        $perSku = $limits->perSku();
-        $used = $limits->used($request->user(), null, $year);
-        $products = Product::query()->with('brand')->whereIn('id', array_keys($used))->get();
+        $byProduct = $limits->usedByProduct($user, $year);
+        $products = Product::query()->with('brand')->whereIn('id', array_keys($byProduct))->get();
 
         $rows = $products
             ->map(fn (Product $product) => [
@@ -23,23 +24,25 @@ class LimitController extends Controller
                 'brand' => $product->brand?->name,
                 'brand_short' => $product->brand?->short,
                 'image_url' => $product->image_url,
-                'used' => $used[$product->id],
-                'allowed' => $perSku,
-                'remaining' => max(0, $perSku - $used[$product->id]),
+                'qty' => $byProduct[$product->id],
             ])
-            ->sortBy([['used', 'desc'], ['name', 'asc']])
+            ->sortBy([['qty', 'desc'], ['name', 'asc']])
             ->values();
 
         return response()->json([
-            'year' => $year,
-            'per_sku' => $perSku,
-            'resets_label' => $limits->resetsLabel($year),
+            ...$limits->status($user),
+            'in_cart' => array_sum($cart->items($user)),
             'days_to_reset' => (int) ceil(now()->diffInDays($limits->resetsOn($year), true)),
-            'totals' => [
-                'skus' => $rows->count(),
-                'pcs' => $rows->sum('used'),
-                'full' => $rows->where('remaining', 0)->count(),
-            ],
+            'brands' => $rows
+                ->groupBy('brand_short')
+                ->map(fn ($group, $short) => [
+                    'short' => $short,
+                    'name' => $group->first()['brand'],
+                    'qty' => $group->sum('qty'),
+                ])
+                ->sortByDesc('qty')
+                ->values()
+                ->all(),
             'products' => $rows->all(),
         ]);
     }

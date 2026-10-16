@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { api, setCsrf } from './api';
+import { clearQuota } from './quota';
 
 export const user = ref(null);
 export const sessionReady = ref(false);
@@ -36,6 +37,7 @@ export async function loadSession() {
 export async function login(payload) {
     const data = await api.post('/login', payload);
     setCsrf(data.csrf);
+    clearQuota();
     user.value = data.user;
     sessionReady.value = true;
 
@@ -50,4 +52,5 @@ export async function logout() {
     const data = await api.post('/logout');
     setCsrf(data.csrf);
     user.value = null;
+    clearQuota();
 }

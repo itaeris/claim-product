@@ -18,12 +18,12 @@ return [
     | Employee purchase policy
     |--------------------------------------------------------------------------
     |
-    | Each employee may buy up to this many pieces of one SKU per calendar
-    | year. HR can approve extra quota through a limit request.
+    | Each employee may buy up to this many pieces per calendar year (WIB),
+    | shared across every brand and product. The quota resets on 1 January.
     |
     */
 
-    'sku_yearly_limit' => (int) env('CLAIM_SKU_YEARLY_LIMIT', 5),
+    'yearly_limit' => (int) env('CLAIM_YEARLY_LIMIT', 5),
 
     'warehouse_address' => env('CLAIM_WAREHOUSE_ADDRESS', 'Gudang pusat, ambil di jam kerja (09.00–16.00)'),
 

@@ -1,10 +1,11 @@
 <script setup>
-import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BrandMark from './BrandMark.vue';
 import { api } from '../api';
 import { logout, user } from '../session';
 import { actsAsAdmin, setUserMode, userMode } from '../viewMode';
+import { loadQuota, quota } from '../quota';
 
 const route = useRoute();
 const router = useRouter();
@@ -18,6 +19,20 @@ const bellStyle = ref({});
 const notifications = ref([]);
 const unread = ref(0);
 let poller = null;
+
+const showQuota = computed(() => Boolean(quota.value) && !route.path.startsWith('/kelola'));
+const inCart = computed(() => claimCart?.count ?? quota.value?.in_cart ?? 0);
+const quotaLeft = computed(() => Math.max(0, (quota.value?.remaining ?? 0) - inCart.value));
+
+function quotaCell(index) {
+    const used = quota.value?.used ?? 0;
+
+    if (index <= used) {
+        return 'used';
+    }
+
+    return index <= used + inCart.value ? 'cart' : '';
+}
 
 function closeMenu() {
     open.value = false;
@@ -97,6 +112,9 @@ onMounted(() => {
     document.addEventListener('click', onDocumentClick);
     document.addEventListener('keydown', onKeydown);
     loadNotifications();
+    if (!route.path.startsWith('/kelola')) {
+        loadQuota(true);
+    }
     poller = window.setInterval(loadNotifications, 60000);
 });
 
@@ -133,6 +151,19 @@ async function onLogout() {
             </RouterLink>
         </div>
         <div class="header-actions">
+            <RouterLink
+                v-if="showQuota"
+                to="/profile"
+                class="quota-pill"
+                :class="{ empty: quotaLeft === 0 }"
+                :aria-label="`Sisa kuota pembelian ${quotaLeft} dari ${quota.total} pcs`"
+                :data-tooltip="`Kuota ${quota.year} · reset ${quota.resets_label}`"
+            >
+                <span class="quota-dots" aria-hidden="true">
+                    <i v-for="index in quota.total" :key="index" :class="quotaCell(index)"></i>
+                </span>
+                <span class="quota-text"><strong>{{ quotaLeft }}/{{ quota.total }}</strong><small>sisa kuota</small></span>
+            </RouterLink>
             <button v-if="claimCart" class="icon-btn cart-btn" type="button" aria-label="Keranjang" data-tooltip="Keranjang" @click="claimCart.openCart()">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M6.5 8h11l-1 12h-9l-1-12Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
                 <span v-if="claimCart.count" class="cart-badge">{{ claimCart.count }}</span>

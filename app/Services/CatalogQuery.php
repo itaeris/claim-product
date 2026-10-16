@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class CatalogQuery
 {
-    private const KEY = 'catalog.v2';
+    private const KEY = 'catalog.v3';
 
     public function __construct(
         private ClaimPricing $pricing,
@@ -20,6 +20,7 @@ class CatalogQuery
     public function forget(): void
     {
         Cache::forget(self::KEY);
+        Cache::forget('catalog.v2');
         Cache::forget('catalog.v1');
     }
 
@@ -45,7 +46,7 @@ class CatalogQuery
                     'ends_label' => 'Berakhir '.IndonesianDate::date($period->ends_on),
                 ],
                 'max_discount_percent' => (int) $brands->max('discount_percent'),
-                'sku_limit' => $this->limits->perSku(),
+                'yearly_limit' => $this->limits->yearly(),
                 'warehouse_address' => config('claimly.warehouse_address'),
                 'brands' => $brands
                     ->map(fn (Brand $brand) => [

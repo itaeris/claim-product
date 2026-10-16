@@ -4,6 +4,7 @@ import { api } from '../api';
 import AppHeader from '../components/AppHeader.vue';
 import ClaimBoard from '../components/ClaimBoard.vue';
 import LimitChart from '../components/LimitChart.vue';
+import { quota } from '../quota';
 import { changePassword, user } from '../session';
 import { useToast } from '../toast';
 
@@ -13,12 +14,11 @@ const error = ref('');
 const currentPassword = ref('');
 const nextPassword = ref('');
 const confirmPassword = ref('');
-const limits = ref(null);
 const limitError = ref('');
 
 onMounted(async () => {
     try {
-        limits.value = await api.get('/api/limits');
+        quota.value = await api.get('/api/limits');
     } catch (caught) {
         limitError.value = caught.message;
     }
@@ -57,7 +57,7 @@ async function savePassword() {
                 </div>
             </div>
 
-            <LimitChart :limits="limits" :error="limitError" />
+            <LimitChart :limits="quota" :error="limitError" />
 
             <ClaimBoard />
 

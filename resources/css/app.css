@@ -570,7 +570,7 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 .cart-group-total { display: flex; justify-content: space-between; padding: 8px 0; font-size: 12px; color: var(--muted); }
 .cart-group-total strong { color: var(--ink); }
 .qty button:disabled { opacity: .4; cursor: not-allowed; }
-.qty-limit { color: var(--muted); font-size: 10px; margin-left: 4px; }
+.qty button:disabled { opacity: .4; cursor: not-allowed; }
 .fulfillment { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fulfillment button {
     border: 1px solid var(--line); background: white; border-radius: 12px; padding: 9px 10px;
@@ -644,24 +644,39 @@ a.ghost-btn { display: inline-flex; align-items: center; text-decoration: none; 
 .limit-empty { margin: 16px 0 0; padding: 18px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); font-size: 13px; text-align: center; }
 .limit-bars { list-style: none; margin: 14px 0 0; padding: 0; }
 .limit-bars li {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, 260px) 64px; gap: 16px; align-items: center;
+    display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 16px; align-items: center;
     padding: 10px 0; border-top: 1px solid #eef0ed;
 }
+.quota-track { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; margin-top: 16px; }
+.quota-track span { height: 18px; border-radius: 6px; background: #e7ebe7; }
+.quota-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.quota-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.quota-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.quota-pill {
+    height: 42px; display: inline-flex; align-items: center; gap: 10px; padding: 0 14px 0 12px;
+    border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink); text-decoration: none;
+}
+.quota-pill:hover { border-color: #cfd8d1; }
+.quota-dots { display: inline-flex; gap: 3px; }
+.quota-dots i { width: 7px; height: 16px; border-radius: 3px; background: #e2e7e3; }
+.quota-dots i.used { background: var(--green-2); }
+.quota-dots i.cart { background: #9cc5b1; }
+.quota-text { display: flex; flex-direction: column; line-height: 1.1; }
+.quota-text strong { font-size: 13px; color: var(--green); }
+.quota-text small { font-size: 10px; color: var(--muted); font-weight: 600; }
+.quota-pill.empty .quota-dots i.used { background: var(--orange); }
+.quota-pill.empty .quota-text strong { color: #b8611f; }
 .limit-bars .product-cell strong { display: block; font-size: 13px; }
 .limit-meter { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
 .limit-meter span { height: 12px; border-radius: 4px; background: #e7ebe7; }
 .limit-meter span.on { background: var(--green-2); }
+.limit-meter span.cart { background: #9cc5b1; }
 .limit-meter.full span.on { background: var(--orange); }
 .limit-count { text-align: right; }
 .limit-count strong { display: block; font-size: 14px; }
 .limit-count small { font-size: 11px; color: var(--muted); }
 .preview-quota { margin-top: 14px; display: grid; gap: 8px; font-size: 12px; color: var(--muted); }
 .preview-quota strong { color: var(--ink); }
-.quota-chip {
-    position: absolute; top: 12px; right: 12px; border-radius: 8px; background: white; color: var(--green-2);
-    font-size: 11px; font-weight: 700; padding: 6px 8px; box-shadow: 0 4px 12px rgba(0,0,0,.07);
-}
-.quota-chip.full { background: #fdf0e4; color: #b8611f; }
 .add-btn:disabled, .add-btn:disabled:hover { background: #eef0ed; color: #b5bdb8; cursor: not-allowed; }
 
 .stage-tabs { flex-wrap: wrap; margin-top: 18px; }
@@ -720,8 +735,8 @@ a.ghost-btn { display: inline-flex; align-items: center; text-decoration: none; 
     header { padding: 0 18px; height:70px; }
     .profile-copy, .profile-caret { display:none; }
     .terms-grid { grid-template-columns: 1fr; }
-    .limit-bars li { grid-template-columns: minmax(0, 1fr) 56px; }
-    .limit-bars .limit-meter { grid-column: 1 / -1; grid-row: 2; }
+    .quota-pill { padding: 0 10px; }
+    .quota-text small { display: none; }
     .limit-stats { width: 100%; }
     .limit-stats div { flex: 1; min-width: 0; }
     .goods-track li { font-size: 10px; }

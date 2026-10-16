@@ -8,18 +8,30 @@ const props = defineProps({
         type: Object,
         default: null,
     },
-    skuLimit: {
+    quotaLeft: {
         type: Number,
-        default: 5,
+        default: null,
     },
-    resetsLabel: {
-        type: String,
-        default: '',
+    limit: {
+        type: Object,
+        default: null,
     },
 });
 
 const emit = defineEmits(['close', 'add']);
 const closeButton = ref(null);
+
+const quotaFull = computed(() => props.quotaLeft === 0);
+
+function quotaCell(index) {
+    const used = props.limit?.used ?? 0;
+
+    if (index <= used) {
+        return 'on';
+    }
+
+    return index <= (props.limit?.total ?? 0) - (props.quotaLeft ?? 0) ? 'cart' : '';
+}
 
 const saving = computed(() => Math.max(0, (props.product?.price ?? 0) - (props.product?.claim_price ?? 0)));
 
@@ -80,15 +92,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <dd>{{ rupiah(product.claim_price) }}</dd>
                         </div>
                     </dl>
-                    <div class="preview-quota">
-                        <div class="limit-meter" :class="{ full: product.remaining === 0 }" aria-hidden="true">
-                            <span v-for="cell in skuLimit" :key="cell" :class="{ on: cell <= skuLimit - product.remaining }"></span>
+                    <div v-if="limit" class="preview-quota">
+                        <div class="limit-meter" :class="{ full: quotaFull }" aria-hidden="true">
+                            <span v-for="cell in limit.total" :key="cell" :class="quotaCell(cell)"></span>
                         </div>
-                        <span>Sisa kuota kamu <strong>{{ product.remaining }}/{{ skuLimit }} pcs</strong><template v-if="resetsLabel"> · reset {{ resetsLabel }}</template></span>
+                        <span>Sisa kuota kamu <strong>{{ quotaLeft }}/{{ limit.total }} pcs</strong> untuk semua brand · reset {{ limit.resets_label }}</span>
                     </div>
                     <p class="preview-note">Invoice dari {{ product.company || product.brand }}</p>
-                    <button class="claim-btn preview-add" type="button" :disabled="product.remaining === 0" @click="emit('add', product)">
-                        {{ product.remaining === 0 ? 'Kuota tahun ini habis' : 'Tambahkan ke keranjang' }}
+                    <button class="claim-btn preview-add" type="button" :disabled="quotaFull" @click="emit('add', product)">
+                        {{ quotaFull ? 'Kuota tahun ini habis' : 'Tambahkan ke keranjang' }}
                     </button>
                 </div>
             </article>
