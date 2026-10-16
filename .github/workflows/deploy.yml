@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-    name: Build and deploy
+  build:
+    name: Build & Push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,8 +39,20 @@ jobs:
           tags: |
             itaeris/product_claim_app:latest
             itaeris/product_claim_app:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: |
+            type=gha,scope=product-claim
+            type=registry,ref=itaeris/product_claim_app:buildcache
+          cache-to: |
+            type=gha,scope=product-claim,mode=max
+            type=registry,ref=itaeris/product_claim_app:buildcache,mode=max,ignore-error=true
+
+  deploy:
+    name: Deploy to Server
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Siapkan SSH
         env:
