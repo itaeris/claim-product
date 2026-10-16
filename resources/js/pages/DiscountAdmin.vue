@@ -19,6 +19,7 @@ watch(brand, (current) => {
             discount_percent: current.discount_percent,
             shipping_fee: current.shipping_fee,
             company_name: current.company_name || '',
+            company_address: current.company_address || '',
             bank_name: current.bank_name || '',
             bank_account_number: current.bank_account_number || '',
             bank_account_name: current.bank_account_name || '',
@@ -75,10 +76,14 @@ async function save() {
             </label>
             <p class="claim-preview">Harga karyawan: <strong>{{ rupiah(claimSample) }}</strong></p>
 
-            <h3 class="terms-sub">Rekening tujuan transfer</h3>
+            <h3 class="terms-sub">PT & rekening di invoice</h3>
             <label class="field">
                 <span>Nama PT</span>
                 <input v-model="form.company_name" type="text" maxlength="160" required>
+            </label>
+            <label class="field">
+                <span>Alamat PT</span>
+                <textarea v-model="form.company_address" rows="3" maxlength="500" placeholder="Satu baris per enter, mis. jalan, kota, provinsi"></textarea>
             </label>
             <div class="terms-grid">
                 <label class="field">

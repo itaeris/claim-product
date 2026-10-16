@@ -175,7 +175,14 @@ class ClaimFlowTest extends TestCase
             ->assertJsonPath('invoice_url', '/invoices/'.$claim->id)
             ->assertJsonPath('bank.company_name', 'PT Citra Pasifik Kosmetik');
 
-        $this->get('/invoices/'.$claim->id)->assertOk()->assertSee('INV/AB/202610/0001')->assertSee('Rp 61.400');
+        $this->get('/invoices/'.$claim->id)
+            ->assertOk()
+            ->assertSee('INV/AB/202610/0001')
+            ->assertSee('Jl. DI Panjaitan No. 138, Kec. Jatinegara')
+            ->assertSee('Ongkos kirim')
+            ->assertSee('61,400')
+            ->assertSee('Enam Puluh Satu Ribu Empat Ratus Rupiah')
+            ->assertSee('065-373-6662');
 
         $this->actingAs($this->employee)
             ->post("/api/claims/{$claim->id}/payments", $this->payment(50000), ['Accept' => 'application/json'])

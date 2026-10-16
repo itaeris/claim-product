@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'discount_percent',
     'shipping_fee',
     'company_name',
+    'company_address',
     'bank_name',
     'bank_account_number',
     'bank_account_name',

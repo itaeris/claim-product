@@ -51,6 +51,9 @@ class CatalogSeeder extends Seeder
                     'discount_percent' => $brandData['discount_percent'],
                     'shipping_fee' => 20000,
                     'company_name' => $brandData['company_name'],
+                    'company_address' => $brandData['company_address'] ?? null,
+                    'bank_name' => $brandData['bank_name'] ?? null,
+                    'bank_account_number' => $brandData['bank_account_number'] ?? null,
                     'bank_account_name' => $brandData['company_name'],
                     'sort_order' => $brandIndex,
                 ],
@@ -92,7 +95,7 @@ class CatalogSeeder extends Seeder
     }
 
     /**
-     * @return array<int, array{name: string, short: string, subtitle: string, discount_percent: int, company_name: string, categories: array<int, string>, products: array<int, array{0: string, 1: string, 2: int, 3: string}>}>
+     * @return array<int, array{name: string, short: string, subtitle: string, discount_percent: int, company_name: string, company_address?: string, bank_name?: string, bank_account_number?: string, categories: array<int, string>, products: array<int, array{0: string, 1: string, 2: int, 3: string}>}>
      */
     private function brands(): array
     {
@@ -103,6 +106,9 @@ class CatalogSeeder extends Seeder
                 'subtitle' => 'Beauty tools & makeup',
                 'discount_percent' => 40,
                 'company_name' => 'PT Citra Pasifik Kosmetik',
+                'company_address' => "Jl. DI Panjaitan No. 138, Kec. Jatinegara\nJakarta Timur 13410\nDKI Jakarta",
+                'bank_name' => 'BCA',
+                'bank_account_number' => '065-373-6662',
                 'categories' => ['Puffs', 'Brush Series', 'Coal Series', 'Ombré Series', 'Brush Set', 'Cleansers'],
                 'products' => [
                     ['Cloud Control Puff', 'Puffs', 69000, $this->image('photo-1596462502278-27bfdc403348')],
