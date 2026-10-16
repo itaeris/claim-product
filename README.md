@@ -96,7 +96,7 @@ Email memakai pengaturan `MAIL_*` biasa. Dengan `MAIL_MAILER=log`, email ditulis
 
 ## Peran
 
-User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, dan melihat kuota pembeliannya. Admin bisa semua itu, plus menjalankan tahap CS, Finance, dan Warehouse serta mengelola katalog dan user. Admin yang ingin belanja tanpa menu admin bisa memilih "Belanja sebagai user" di menu akun.
+User bisa masuk dengan password atau Google. Login Google hanya berhasil jika email Google itu sudah ada di data karyawan, jadi akun baru tidak dibuat otomatis. User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, dan melihat kuota pembeliannya. Admin bisa semua itu, plus menjalankan tahap CS, Finance, dan Warehouse serta mengelola katalog dan user. Admin yang ingin belanja tanpa menu admin bisa memilih "Belanja sebagai user" di menu akun.
 
 | Halaman            | Siapa                                      |
 | ------------------ | ------------------------------------------ |

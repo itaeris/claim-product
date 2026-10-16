@@ -33,9 +33,19 @@ class SessionController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
+        $registered = User::query()
+            ->whereRaw('LOWER(email) = ?', [strtolower($credentials['email'])])
+            ->exists();
+
+        if (! $registered) {
+            throw ValidationException::withMessages([
+                'email' => 'Email tidak terdaftar.',
+            ]);
+        }
+
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'email' => 'Email atau password salah.',
+                'password' => 'Password salah.',
             ]);
         }
 

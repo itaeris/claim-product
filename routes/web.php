@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LimitController;
 use App\Http\Controllers\NotificationController;
@@ -15,6 +16,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:10,1');
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->middleware('throttle:10,1');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->middleware('throttle:10,1');
 Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth');
 Route::get('/api/me', [SessionController::class, 'show']);
 Route::get('/invoices/{claim}', [InvoiceController::class, 'show'])->middleware('auth');

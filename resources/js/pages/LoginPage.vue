@@ -16,6 +16,19 @@ const brandMarks = [
     { name: 'Kinandally', src: '/logo-brand/marks/kin.png' },
 ];
 const error = ref('');
+const googleErrors = {
+    failed: 'Login Google gagal. Coba lagi.',
+    unregistered: 'Email Google ini belum terdaftar. Hubungi admin.',
+    domain: 'Gunakan email perusahaan yang sudah terdaftar.',
+    mismatch: 'Akun Google ini terhubung ke karyawan lain.',
+};
+const googleHref = computed(() => {
+    const target = route.query.redirect;
+
+    return typeof target === 'string' && target.startsWith('/') && !target.startsWith('//')
+        ? `/auth/google?redirect=${encodeURIComponent(target)}`
+        : '/auth/google';
+});
 const submitting = ref(false);
 const stageRef = ref(null);
 const sheetHeight = ref(null);
@@ -98,7 +111,13 @@ function fitSheet() {
     sheetHeight.value = Math.min(max, Math.max(min, sheetHeight.value));
 }
 
-onMounted(() => window.addEventListener('resize', fitSheet));
+onMounted(() => {
+    window.addEventListener('resize', fitSheet);
+
+    if (typeof route.query.google === 'string') {
+        error.value = googleErrors[route.query.google] || '';
+    }
+});
 onBeforeUnmount(() => {
     endDrag();
     window.removeEventListener('resize', fitSheet);
@@ -207,8 +226,16 @@ async function submit() {
                     <input v-model="remember" type="checkbox">
                     <span>Ingat saya</span>
                 </label>
-                <p v-if="error" class="form-error">{{ error }}</p>
+                <div v-if="error" class="login-alert" role="alert">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="16.2" r="0.8" fill="currentColor"/></svg>
+                    <span>{{ error }}</span>
+                </div>
                 <button class="login-submit" type="submit" :disabled="submitting">{{ submitting ? 'Memeriksa...' : 'Masuk' }}</button>
+                <div class="login-divider">atau</div>
+                <a class="google-btn" :href="googleHref">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.7Z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.4 14.4A7.2 7.2 0 0 1 5 12c0-.8.1-1.6.4-2.4V6.5H1.4A12 12 0 0 0 0 12c0 1.9.5 3.8 1.4 5.5l4-3.1Z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.3.6 4.5 1.8l3.4-3.4A12 12 0 0 0 1.4 6.5l4 3.1C6.3 6.8 8.9 4.8 12 4.8Z"/></svg>
+                    Masuk dengan Google
+                </a>
             </form>
             <p class="login-footer login-footer-sheet">Product Claim untuk karyawan</p>
             </div>

@@ -434,11 +434,25 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
     border-color: var(--green);
 }
 .login-remember input:focus-visible, .check input:focus-visible { outline: 2px solid rgba(23, 79, 59, .35); outline-offset: 2px; }
+.login-alert {
+    display: flex; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 12px 14px;
+    border-radius: 12px; background: #fdf2ef; color: #9a4332; font-size: 13px; font-weight: 600; line-height: 1.4;
+}
+.login-alert svg { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 1px; }
 .login-submit {
     width: 100%; height: 52px; margin-top: 22px; border: 0; border-radius: 999px; background: var(--green); color: white;
     font-weight: 700; font-size: 15px; cursor: pointer;
 }
 .login-submit:disabled { background: #cdd4d0; cursor: not-allowed; }
+.login-divider { display: flex; align-items: center; gap: 12px; margin-top: 18px; color: #8b978f; font-size: 12px; }
+.login-divider:before, .login-divider:after { content: ""; flex: 1; height: 1px; background: #e3e8e4; }
+.google-btn {
+    width: 100%; height: 52px; margin-top: 14px; border: 1px solid var(--line); border-radius: 999px; background: white;
+    color: var(--ink); font-weight: 700; font-size: 15px; text-decoration: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+}
+.google-btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.google-btn:hover { border-color: #c5cfc8; }
 .field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
 .field span { font-size: 12px; font-weight: 700; color: #5f6d66; }
 .field input {
