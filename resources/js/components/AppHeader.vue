@@ -153,7 +153,7 @@ async function onLogout() {
         <div class="header-actions">
             <RouterLink
                 v-if="showQuota"
-                to="/profile"
+                to="/profile/riwayat"
                 class="quota-pill"
                 :class="{ empty: quotaLeft === 0 }"
                 :aria-label="`Sisa kuota pembelian ${quotaLeft} dari ${quota.total} pcs`"
@@ -195,7 +195,7 @@ async function onLogout() {
             </div>
             <Teleport to="body">
                 <div v-if="open" class="profile-dropdown" role="menu" :style="menuStyle">
-                    <RouterLink v-if="route.path !== '/profile'" to="/profile" role="menuitem" @click="closeMenu">Profil</RouterLink>
+                    <RouterLink v-if="!route.path.startsWith('/profile')" to="/profile" role="menuitem" @click="closeMenu">Profil</RouterLink>
                     <button v-if="user?.is_admin" type="button" role="menuitem" @click="toggleUserMode">
                         {{ userMode ? 'Kembali ke mode admin' : 'Belanja sebagai user' }}
                     </button>

@@ -75,7 +75,7 @@ Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan
 6. Gudang menyiapkan barang, lalu mengirim (dengan nomor resi opsional) atau menandai siap diambil.
 7. Karyawan menekan "Barang sudah diterima", atau admin menandai selesai.
 
-Sisa kuota tampil di header (5 balok: terpakai, di keranjang, dan sisa). Profil menampilkan grafik kuota per brand, daftar produk yang sudah dibeli, dan tanggal reset. Tombol tambah di katalog dan keranjang mati begitu kuota habis, termasuk barang yang masih di keranjang. Pesanan yang dibatalkan tidak dihitung ke kuota.
+Sisa kuota tampil di header (5 balok: terpakai, di keranjang, dan sisa). Halaman Riwayat Produk menampilkan grafik kuota per brand, tanggal reset, dan semua produk yang pernah dipesan. Tombol tambah di katalog dan keranjang mati begitu kuota habis, termasuk barang yang masih di keranjang. Pesanan yang dibatalkan tidak dihitung ke kuota.
 
 Invoice bisa dicetak atau disimpan sebagai PDF di `/invoices/{id}` setelah stok dicek. Bukti transfer disimpan di disk privat dan hanya bisa dibuka pemilik pesanan atau admin.
 
@@ -103,7 +103,8 @@ User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, 
 | `/login`           | Tamu                                       |
 | `/`                | Katalog dan keranjang                      |
 | `/progres`         | Progres pesanan sendiri                    |
-| `/profile`         | Akun, grafik kuota, dan progres            |
+| `/profile/riwayat`    | Profil: grafik kuota dan riwayat produk |
+| `/profile/pengaturan` | Profil: data akun dan ganti password    |
 | `/kelola/klaim`    | Admin: pesanan per tahap                   |
 | `/kelola/produk`   | Admin                                      |
 | `/kelola/kategori` | Admin                                      |

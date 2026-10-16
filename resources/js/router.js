@@ -8,8 +8,9 @@ import DiscountAdmin from './pages/DiscountAdmin.vue';
 import LoginPage from './pages/LoginPage.vue';
 import PriceAdmin from './pages/PriceAdmin.vue';
 import ProductAdmin from './pages/ProductAdmin.vue';
-import ProfilePage from './pages/ProfilePage.vue';
+import HistoryPage from './pages/HistoryPage.vue';
 import ProgressPage from './pages/ProgressPage.vue';
+import SettingsPage from './pages/SettingsPage.vue';
 import UserAdmin from './pages/UserAdmin.vue';
 
 export const router = createRouter({
@@ -18,13 +19,16 @@ export const router = createRouter({
         { path: '/login', component: LoginPage, meta: { guest: true } },
         { path: '/', component: ClaimDesk, meta: { auth: true } },
         { path: '/progres', component: ProgressPage, meta: { auth: true } },
-        { path: '/profile', component: ProfilePage, meta: { auth: true } },
+        { path: '/profile', redirect: '/profile/riwayat' },
+        { path: '/profile/riwayat', component: HistoryPage, meta: { auth: true } },
+        { path: '/profile/pengaturan', component: SettingsPage, meta: { auth: true } },
         { path: '/kelola/kategori', component: CategoryAdmin, meta: { auth: true, admin: true } },
         { path: '/kelola/produk', component: ProductAdmin, meta: { auth: true, admin: true } },
         { path: '/kelola/harga', component: PriceAdmin, meta: { auth: true, admin: true } },
         { path: '/kelola/diskon', component: DiscountAdmin, meta: { auth: true, admin: true } },
         { path: '/kelola/user', component: UserAdmin, meta: { auth: true, admin: true } },
-        { path: '/kelola/klaim', component: ClaimAdmin, meta: { auth: true, admin: true } },    ],
+        { path: '/kelola/klaim', component: ClaimAdmin, meta: { auth: true, admin: true } },
+    ],
 });
 
 router.beforeEach(async (to) => {

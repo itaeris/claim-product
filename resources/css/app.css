@@ -127,9 +127,15 @@ header {
     text-decoration: none; display: block;
 }
 .profile-dropdown button:hover, .profile-dropdown a:hover { background: #f3f6f3; }
+.profile-dropdown a.router-link-active { background: var(--mint); color: var(--green); }
 .profile-dropdown button.danger { color: #9a4332; }
 .profile-dropdown button.danger:hover { background: #f8efec; }
 .goods-board { margin-top: 22px; }
+.history-section { margin-top: 22px; }
+.history-section h2 { margin: 0 0 12px; font-size: 18px; }
+.history-section .product-cell strong { display: block; font-size: 13px; }
+.history-brand { display: inline-flex; align-items: center; gap: 5px; }
+.history-brand img { width: 14px; height: 14px; object-fit: contain; }
 .goods-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .admin-main > .goods-tabs { margin-top: 18px; }
 .goods-tabs .admin-tab.active { background: var(--green); color: white; border-color: var(--green); }
