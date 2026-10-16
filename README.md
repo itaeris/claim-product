@@ -114,6 +114,51 @@ User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, 
 
 Gambar produk dilampirkan sebagai JPG, PNG, atau WebP (maksimal 5 MB) dan disimpan lewat disk `public`. Produk tanpa gambar menampilkan placeholder kotak. Logo brand ada di `public/logo-brand`.
 
+## Deploy
+
+Push ke branch `main` menjalankan GitHub Action `.github/workflows/deploy.yml`. Action membangun image `itaeris/product_claim_app`, mendorongnya ke Docker Hub, lalu lewat SSH: menghentikan container `product_claim_app` jika masih jalan, menghapus container dan image lama, menarik image baru, dan menjalankannya lagi dengan `docker run` di network `product-network`, port `2029`.
+
+Tidak ada container MySQL baru. `DB_HOST` dan `REDIS_HOST` di secret `BACKEND_ENV` harus nama container yang sudah ada di `product-network`, bukan `127.0.0.1`.
+
+Secret yang dipakai:
+
+| Secret | Isi |
+| --- | --- |
+| `DOCKERHUB_USERNAME` | Username Docker Hub |
+| `DOCKERHUB_TOKEN` | Access token Docker Hub |
+| `BACKEND_ENV` | Isi file `.env` production, satu baris per variabel |
+| `SERVER_HOST` | IP atau hostname server |
+| `SERVER_USER` | User SSH yang boleh menjalankan Docker |
+| `SERVER_SSH_KEY` | Private key SSH |
+
+Saat container mulai, entrypoint menjalankan `php artisan migrate --force`. Migrasi yang sudah tercatat dilewati. Migrasi baru menambahkan tabel atau kolomnya. Data yang sudah ada tidak dihapus.
+
+PDF bukti transfer dan gambar katalog disimpan di disk server, bukan di dalam container:
+
+| Path di server | Isi |
+| --- | --- |
+| `/DATA/AppData/productclaim/pdf` | Bukti transfer (PDF dan gambar) |
+| `/DATA/AppData/productclaim/katalog` | Gambar produk, disajikan lewat `/storage` |
+
+Domain `https://product.aeris-fti.com` diarahkan dari Nginx di host ke container:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name product.aeris-fti.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:2029;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+`APP_URL` di `BACKEND_ENV` diisi `https://product.aeris-fti.com`. File itu dipasang sebagai `.env` Laravel, jadi formatnya sama dengan `.env` lokal.
+
 ## Tes
 
 Tes memakai SQLite di memori, jadi MySQL dan Redis tidak perlu hidup.
