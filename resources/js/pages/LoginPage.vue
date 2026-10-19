@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BrandMark from '../components/BrandMark.vue';
 import { login } from '../session';
+import { homePath } from '../viewMode';
 
 const route = useRoute();
 const router = useRouter();
@@ -161,7 +162,11 @@ async function submit() {
             password: password.value,
             remember: remember.value,
         });
-        await router.push(typeof route.query.redirect === 'string' ? route.query.redirect : '/');
+        const target = route.query.redirect;
+        const next = typeof target === 'string' && target.startsWith('/') && !target.startsWith('//')
+            ? target
+            : homePath();
+        await router.push(next);
     } catch (caught) {
         error.value = caught.message;
     } finally {

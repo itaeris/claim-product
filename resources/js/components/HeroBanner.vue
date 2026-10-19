@@ -16,7 +16,7 @@ defineProps({
         <div class="hero-copy">
             <div class="eyebrow">Employee purchase</div>
             <h1>Pilih produk favoritmu,<br>khusus untuk kamu.</h1>
-            <p>Diskon karyawan hingga {{ discount }}% sesuai brand. Kuota {{ yearlyLimit }} pcs per produk per tahun.</p>
+            <p>Diskon karyawan hingga {{ discount }}% sesuai brand. Kuota {{ yearlyLimit }} pcs per produk, reset tiap 1 September.</p>
         </div>
         <div class="hero-visual" aria-hidden="true">
             <div class="hero-bottle"></div>

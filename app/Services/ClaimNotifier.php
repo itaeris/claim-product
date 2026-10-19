@@ -17,10 +17,10 @@ class ClaimNotifier
     {
         $invoiceUrl = $claim?->invoice_issued_at !== null ? '/invoices/'.$claim->id : null;
 
-        $this->safely(fn () => $user->notify(new ClaimUpdate($title, $body, '/progres', $invoiceUrl)));
+        $this->safely(fn () => $user->notify(new ClaimUpdate($title, $body, '/employee/progres', $invoiceUrl)));
     }
 
-    public function ops(string $title, string $body, ?User $actor = null, string $url = '/kelola/klaim'): void
+    public function ops(string $title, string $body, ?User $actor = null, string $url = '/admin/pesanan'): void
     {
         $admins = User::query()
             ->where('is_admin', true)

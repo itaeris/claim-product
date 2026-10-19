@@ -10,7 +10,7 @@ class ClaimUpdate extends Notification
     public function __construct(
         public string $title,
         public string $body,
-        public string $url = '/progres',
+        public string $url = '/employee/progres',
         public ?string $invoiceUrl = null,
     ) {}
 

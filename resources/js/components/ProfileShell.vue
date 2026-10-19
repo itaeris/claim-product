@@ -19,8 +19,8 @@ defineProps({
                     <p>{{ description }}</p>
                 </div>
                 <div class="admin-tabs">
-                    <RouterLink to="/profile/riwayat" class="admin-tab">Riwayat produk</RouterLink>
-                    <RouterLink to="/profile/pengaturan" class="admin-tab">Pengaturan</RouterLink>
+                    <RouterLink to="/employee/profile/riwayat" class="admin-tab">Riwayat produk</RouterLink>
+                    <RouterLink to="/employee/profile/pengaturan" class="admin-tab">Pengaturan</RouterLink>
                 </div>
             </div>
             <slot />

@@ -6,7 +6,7 @@ import { brandLogo } from '../brandLogo';
 import AppHeader from './AppHeader.vue';
 
 const route = useRoute();
-const brandPaths = ['/kelola/produk', '/kelola/kategori', '/kelola/harga', '/kelola/diskon'];
+const brandPaths = ['/admin/produk', '/admin/kategori', '/admin/harga', '/admin/diskon'];
 const showBrands = computed(() => brandPaths.includes(route.path));
 
 watch(showBrands, (visible) => {
@@ -26,9 +26,9 @@ watch(showBrands, (visible) => {
                     <p>Pesanan per invoice, produk, harga, dan ketentuan tiap brand. Semua nominal dalam Rupiah.</p>
                 </div>
                 <div class="admin-tabs">
-                    <RouterLink to="/kelola/klaim" class="admin-tab">Pesanan</RouterLink>
-                    <RouterLink to="/kelola/produk" class="admin-tab" :class="{ 'router-link-active': showBrands }">Katalog</RouterLink>
-                    <RouterLink to="/kelola/user" class="admin-tab">User</RouterLink>
+                    <RouterLink to="/admin/pesanan" class="admin-tab">Pesanan</RouterLink>
+                    <RouterLink to="/admin/produk" class="admin-tab" :class="{ 'router-link-active': showBrands }">Katalog</RouterLink>
+                    <RouterLink to="/admin/user" class="admin-tab">User</RouterLink>
                 </div>
             </div>
             <div
@@ -53,10 +53,10 @@ watch(showBrands, (visible) => {
                     </button>
                 </div>
                 <div class="admin-tabs brand-filters">
-                    <RouterLink to="/kelola/produk" class="admin-tab">Produk</RouterLink>
-                    <RouterLink to="/kelola/kategori" class="admin-tab">Kategori</RouterLink>
-                    <RouterLink to="/kelola/harga" class="admin-tab">Harga</RouterLink>
-                    <RouterLink to="/kelola/diskon" class="admin-tab">Diskon & ongkir</RouterLink>
+                    <RouterLink to="/admin/produk" class="admin-tab">Produk</RouterLink>
+                    <RouterLink to="/admin/kategori" class="admin-tab">Kategori</RouterLink>
+                    <RouterLink to="/admin/harga" class="admin-tab">Harga</RouterLink>
+                    <RouterLink to="/admin/diskon" class="admin-tab">Diskon & ongkir</RouterLink>
                 </div>
             </div>
             <slot />

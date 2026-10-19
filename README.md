@@ -63,7 +63,7 @@ Seeder juga mengisi tiga brand beserta ketentuannya, produk, dan periode Oktober
 | From This Island | PT Inovasi Alam Nusantara    | 30%             |
 | KIN + ALLY       | PT Kinerja Inovasi Nusantara | 30%             |
 
-Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap produk (SKU) punya kuota sendiri 5 pcs per tahun, jadi membeli satu produk tidak mengurangi kuota produk lain. Barang yang sama boleh dibeli berulang selama kuota SKU itu masih ada. Kuota reset otomatis setiap 1 Januari pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
+Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap produk (SKU) punya kuota sendiri 5 pcs per tahun, jadi membeli satu produk tidak mengurangi kuota produk lain. Barang yang sama boleh dibeli berulang selama kuota SKU itu masih ada. Kuota reset otomatis setiap 1 September pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/admin/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
 
 ## Alur pesanan
 
@@ -96,21 +96,21 @@ Email memakai pengaturan `MAIL_*` biasa. Dengan `MAIL_MAILER=log`, email ditulis
 
 ## Peran
 
-User bisa masuk dengan password atau Google. Login Google hanya berhasil jika email Google itu sudah ada di data karyawan, jadi akun baru tidak dibuat otomatis. User bisa membuka katalog, memesan, mengunggah bukti transfer, melihat progres, dan melihat kuota pembeliannya. Admin bisa semua itu, plus menjalankan tahap CS, Finance, dan Warehouse serta mengelola katalog dan user. Admin yang ingin belanja tanpa menu admin bisa memilih "Belanja sebagai user" di menu akun.
+User bisa masuk dengan password atau Google. Login Google hanya berhasil jika email Google itu sudah ada di data karyawan, jadi akun baru tidak dibuat otomatis. Karyawan masuk ke `/employee`: katalog, pesanan, bukti transfer, progres, dan kuota. Admin masuk ke `/admin`: tahap CS, Finance, dan Warehouse, plus katalog dan user. Admin yang ingin belanja memilih "Belanja sebagai user" dan pindah ke `/employee`.
 
-| Halaman            | Siapa                                      |
-| ------------------ | ------------------------------------------ |
-| `/login`           | Tamu                                       |
-| `/`                | Katalog dan keranjang                      |
-| `/progres`         | Progres pesanan sendiri                    |
-| `/profile/riwayat`    | Profil: kuota per produk dan riwayat |
-| `/profile/pengaturan` | Profil: data akun dan ganti password    |
-| `/kelola/klaim`    | Admin: pesanan per tahap                   |
-| `/kelola/produk`   | Admin                                      |
-| `/kelola/kategori` | Admin                                      |
-| `/kelola/harga`    | Admin                                      |
-| `/kelola/diskon`   | Admin: diskon, ongkir, dan rekening brand  |
-| `/kelola/user`     | Admin                                      |
+| Halaman                      | Siapa                                   |
+| ---------------------------- | --------------------------------------- |
+| `/login`                     | Tamu                                    |
+| `/employee`                  | Katalog dan keranjang karyawan          |
+| `/employee/progres`          | Progres pesanan sendiri                 |
+| `/employee/profile/riwayat`  | Kuota per produk dan riwayat            |
+| `/employee/profile/pengaturan` | Data akun dan ganti password          |
+| `/admin/pesanan`             | Admin: pesanan per tahap                |
+| `/admin/produk`              | Admin                                   |
+| `/admin/kategori`            | Admin                                   |
+| `/admin/harga`               | Admin                                   |
+| `/admin/diskon`              | Admin: diskon, ongkir, dan rekening brand |
+| `/admin/user`                | Admin                                   |
 
 Gambar produk dilampirkan sebagai JPG, PNG, atau WebP (maksimal 5 MB) dan disimpan lewat disk `public`. Produk tanpa gambar menampilkan placeholder kotak. Logo brand ada di `public/logo-brand`.
 

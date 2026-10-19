@@ -18,8 +18,8 @@ return [
     | Employee purchase policy
     |--------------------------------------------------------------------------
     |
-    | Each employee may buy up to this many pieces of each SKU per calendar
-    | year (WIB). Every product has its own quota. It resets on 1 January.
+    | Each employee may buy up to this many pieces of each SKU per quota year.
+    | The year runs from 1 September 00:00 WIB until the next 1 September.
     |
     */
 

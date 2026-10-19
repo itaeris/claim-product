@@ -10,7 +10,7 @@ class OpsUpdate extends Notification
     public function __construct(
         public string $title,
         public string $body,
-        public string $url = '/kelola/klaim',
+        public string $url = '/admin/pesanan',
     ) {}
 
     /**

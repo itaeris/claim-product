@@ -80,7 +80,7 @@
 </head>
 <body>
     <div class="toolbar">
-        <a href="/progres">Kembali</a>
+        <a href="/employee/progres">Kembali</a>
         <button type="button" onclick="window.print()">Cetak / Simpan PDF</button>
     </div>
 

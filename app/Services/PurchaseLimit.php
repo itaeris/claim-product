@@ -20,12 +20,14 @@ class PurchaseLimit
 
     public function currentYear(): int
     {
-        return now(self::TIMEZONE)->year;
+        $now = now(self::TIMEZONE);
+
+        return $now->month >= 9 ? $now->year : $now->year - 1;
     }
 
     public function resetsOn(?int $year = null): Carbon
     {
-        return Carbon::create(($year ?? $this->currentYear()) + 1, 1, 1, 0, 0, 0, self::TIMEZONE);
+        return Carbon::create(($year ?? $this->currentYear()) + 1, 9, 1, 0, 0, 0, self::TIMEZONE);
     }
 
     public function resetsLabel(?int $year = null): string

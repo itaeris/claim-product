@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BrandMark from './BrandMark.vue';
 import { api } from '../api';
@@ -8,6 +8,8 @@ import { actsAsAdmin, setUserMode, userMode } from '../viewMode';
 
 const route = useRoute();
 const router = useRouter();
+const onAdmin = computed(() => route.path.startsWith('/admin'));
+const onEmployee = computed(() => route.path.startsWith('/employee'));
 const claimCart = inject('claimCart', null);
 const open = ref(false);
 const menu = ref(null);
@@ -112,7 +114,7 @@ async function toggleUserMode() {
     const enabled = !userMode.value;
     setUserMode(enabled);
     closeMenu();
-    await router.push(enabled ? '/' : '/kelola/klaim');
+    await router.push(enabled ? '/employee' : '/admin');
 }
 
 async function onLogout() {
@@ -125,7 +127,7 @@ async function onLogout() {
 <template>
     <header>
         <div class="brandmark">
-            <RouterLink to="/" class="brandmark">
+            <RouterLink :to="onAdmin ? '/admin' : '/employee'" class="brandmark">
                 <div class="brandmark-logo">
                     <BrandMark />
                 </div>
@@ -143,14 +145,11 @@ async function onLogout() {
                     <span v-if="unread" class="cart-badge">{{ unread > 9 ? '9+' : unread }}</span>
                 </button>
             </div>
-            <RouterLink v-if="route.path !== '/'" to="/" class="icon-btn" aria-label="Katalog" data-tooltip="Katalog">
+            <RouterLink v-if="onEmployee && route.path !== '/employee'" to="/employee" class="icon-btn" aria-label="Katalog" data-tooltip="Katalog">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/></svg>
             </RouterLink>
-            <RouterLink v-if="route.path !== '/progres'" to="/progres" class="icon-btn" aria-label="Progres" data-tooltip="Progres">
+            <RouterLink v-if="onEmployee && route.path !== '/employee/progres'" to="/employee/progres" class="icon-btn" aria-label="Progres" data-tooltip="Progres">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v4.5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-            </RouterLink>
-            <RouterLink v-if="actsAsAdmin && !route.path.startsWith('/kelola')" to="/kelola/klaim" class="icon-btn" aria-label="Kelola" data-tooltip="Kelola">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="7" r="1.6" fill="white" stroke="currentColor" stroke-width="1.7"/><circle cx="15" cy="12" r="1.6" fill="white" stroke="currentColor" stroke-width="1.7"/><circle cx="10" cy="17" r="1.6" fill="white" stroke="currentColor" stroke-width="1.7"/></svg>
             </RouterLink>
             <div ref="menu" class="profile-menu" :class="{ open }">
                 <button class="profile" type="button" :aria-expanded="open" aria-haspopup="menu" data-tooltip="Akun" @click.stop="toggleMenu">
@@ -164,7 +163,7 @@ async function onLogout() {
             </div>
             <Teleport to="body">
                 <div v-if="open" class="profile-dropdown" role="menu" :style="menuStyle">
-                    <RouterLink v-if="!route.path.startsWith('/profile')" to="/profile" role="menuitem" @click="closeMenu">Profil</RouterLink>
+                    <RouterLink v-if="onEmployee && !route.path.startsWith('/employee/profile')" to="/employee/profile" role="menuitem" @click="closeMenu">Profil</RouterLink>
                     <button v-if="user?.is_admin" type="button" role="menuitem" @click="toggleUserMode">
                         {{ userMode ? 'Kembali ke mode admin' : 'Belanja sebagai user' }}
                     </button>
