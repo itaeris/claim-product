@@ -7,6 +7,9 @@ import { useToast } from '../toast';
 import AdminShell from '../components/AdminShell.vue';
 import AppSelect from '../components/AppSelect.vue';
 import ProductPhoto from '../components/ProductPhoto.vue';
+import TablePager from '../components/TablePager.vue';
+
+const PER_PAGE = 10;
 
 const { show } = useToast();
 const brands = ref([]);
@@ -33,6 +36,20 @@ const filtered = computed(() => {
 
         return product.brand_id === adminBrandId.value && haystack.includes(term);
     });
+});
+
+const page = ref(1);
+const pageCount = computed(() => Math.max(1, Math.ceil(filtered.value.length / PER_PAGE)));
+const paged = computed(() => filtered.value.slice((page.value - 1) * PER_PAGE, page.value * PER_PAGE));
+
+watch([query, adminBrandId], () => {
+    page.value = 1;
+});
+
+watch(pageCount, (count) => {
+    if (page.value > count) {
+        page.value = count;
+    }
 });
 
 const categoryOptions = computed(() => brands.value.find((brand) => brand.id === Number(form.value?.brand_id))?.categories ?? []);
@@ -208,7 +225,7 @@ async function remove(product) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="product in filtered" :key="product.id">
+                            <tr v-for="product in paged" :key="product.id">
                                 <td>
                                     <div class="product-cell">
                                         <ProductPhoto :src="product.image_url || ''" :alt="product.name" />
@@ -227,6 +244,7 @@ async function remove(product) {
                         </tbody>
                     </table>
                 </div>
+                <TablePager v-if="!loading && filtered.length" v-model:page="page" :per-page="PER_PAGE" :total="filtered.length" label="produk" />
             </section>
             <form v-if="form" class="editor" @submit.prevent="save">
                 <h2>{{ form.id ? 'Ubah produk' : 'Produk baru' }}</h2>

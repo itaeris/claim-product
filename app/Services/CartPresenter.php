@@ -31,6 +31,8 @@ class CartPresenter
                 ->get()
                 ->keyBy('id');
 
+        $bought = $this->limits->usedByProduct($user);
+        $cap = $this->limits->yearly();
         $items = [];
         $groups = [];
         $retailTotal = 0;
@@ -55,6 +57,8 @@ class CartPresenter
                 'unit_retail_price' => $product->retail_price,
                 'unit_claim_price' => $unitClaim,
                 'discount_percent' => $brand->discount_percent,
+                'purchased' => $purchased = $bought[$product->id] ?? 0,
+                'sku_remaining' => max(0, $cap - $purchased),
             ];
 
             $groups[$brand->id] ??= [
@@ -97,7 +101,10 @@ class CartPresenter
             'saving_total' => $retailTotal - $claimTotal,
             'claim_total' => $claimTotal,
             'delivery_fee_total' => collect($groups)->sum('shipping_fee'),
-            'limit' => $this->limits->status($user),
+            'limit' => [
+                ...$this->limits->policy(),
+                'by_product' => (object) $bought,
+            ],
         ];
     }
 }

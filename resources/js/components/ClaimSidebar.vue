@@ -38,7 +38,10 @@ const groups = computed(() => (props.cart.groups ?? []).map((group) => ({
 const shippingTotal = computed(() => (fulfillment.value === 'delivery' ? props.cart.delivery_fee_total ?? 0 : 0));
 const grandTotal = computed(() => props.cart.claim_total + shippingTotal.value);
 const limit = computed(() => props.cart.limit);
-const quotaLeft = computed(() => (limit.value ? Math.max(0, limit.value.remaining - props.cart.count) : null));
+
+function skuLeft(item) {
+    return Math.max(0, (item.sku_remaining ?? limit.value?.total ?? 0) - item.qty);
+}
 
 function onKeydown(event) {
     if (event.key === 'Escape' && props.open) {
@@ -71,7 +74,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
             <div>
                 <strong>{{ period?.name || 'Employee purchase' }}</strong>
-                <span v-if="limit">Sisa kuota {{ quotaLeft }}/{{ limit.total }} pcs · semua brand, reset {{ limit.resets_label }}</span>
+                <span v-if="limit">Maks. {{ limit.total }} pcs per produk per tahun · reset {{ limit.resets_label }}</span>
             </div>
         </div>
         <div class="claim-items">
@@ -96,10 +99,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     <div>
                         <strong>{{ item.name }}</strong>
                         <span>{{ rupiah(item.unit_claim_price) }}</span>
+                        <span class="sku-left" :class="{ full: skuLeft(item) === 0 }">Sisa {{ skuLeft(item) }}/{{ limit?.total }}</span>
                         <div class="qty">
                             <button type="button" @click="emit('change', item, -1)">−</button>
                             <em>{{ item.qty }}</em>
-                            <button type="button" :disabled="quotaLeft === 0" @click="emit('change', item, 1)">+</button>
+                            <button type="button" :disabled="skuLeft(item) === 0" @click="emit('change', item, 1)">+</button>
                         </div>
                     </div>
                     <button class="remove" type="button" aria-label="Hapus" @click="emit('remove', item)">×</button>

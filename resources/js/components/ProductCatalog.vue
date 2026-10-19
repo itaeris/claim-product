@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { brandLogo } from '../brandLogo';
 import { rupiah } from '../format';
+import { skuQuota } from '../quota';
 import ProductPhoto from './ProductPhoto.vue';
 import ProductPreview from './ProductPreview.vue';
 
@@ -10,9 +11,9 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    quotaLeft: {
-        type: Number,
-        default: null,
+    cartItems: {
+        type: Array,
+        default: () => [],
     },
     limit: {
         type: Object,
@@ -20,9 +21,15 @@ const props = defineProps({
     },
 });
 
-const quotaFull = computed(() => props.quotaLeft === 0);
-
 const emit = defineEmits(['add']);
+
+function cartQty(productId) {
+    return props.cartItems.find((item) => item.product_id === productId)?.qty ?? 0;
+}
+
+function sku(product) {
+    return skuQuota(props.limit, product.id, cartQty(product.id));
+}
 
 const activeBrandId = ref(props.brands[0]?.id ?? null);
 const category = ref('Semua');
@@ -133,6 +140,9 @@ function openProduct(product) {
             <div class="product-info">
                 <span class="product-cat">{{ product.category }}</span>
                 <div class="product-name">{{ product.name }}</div>
+                <span v-if="sku(product) && sku(product).left < sku(product).total" class="sku-left" :class="{ full: sku(product).left === 0 }">
+                    {{ sku(product).left === 0 ? 'Kuota habis' : `Sisa ${sku(product).left}/${sku(product).total}` }}
+                </span>
                 <div class="price-row">
                     <div class="price">
                         <small>{{ rupiah(product.price) }}</small>
@@ -141,9 +151,9 @@ function openProduct(product) {
                     <button
                         class="add-btn"
                         type="button"
-                        :disabled="quotaFull"
+                        :disabled="sku(product)?.left === 0"
                         :aria-label="`Tambahkan ${product.name}`"
-                        :data-tooltip="quotaFull ? 'Kuota tahun ini habis' : null"
+                        :data-tooltip="sku(product)?.left === 0 ? 'Kuota produk ini habis' : null"
                         @click.stop="emit('add', product)"
                     >+</button>
                 </div>
@@ -154,7 +164,7 @@ function openProduct(product) {
 
     <ProductPreview
         :product="selected"
-        :quota-left="quotaLeft"
+        :cart-items="cartItems"
         :limit="limit"
         @close="selected = null"
         @add="emit('add', $event)"

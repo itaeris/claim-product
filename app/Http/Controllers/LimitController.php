@@ -15,6 +15,7 @@ class LimitController extends Controller
         $user = $request->user();
         $year = $limits->currentYear();
         $byProduct = $limits->usedByProduct($user, $year);
+        $cap = $limits->yearly();
         $products = Product::query()->with('brand')->whereIn('id', array_keys($byProduct))->get();
 
         $rows = $products
@@ -25,12 +26,14 @@ class LimitController extends Controller
                 'brand_short' => $product->brand?->short,
                 'image_url' => $product->image_url,
                 'qty' => $byProduct[$product->id],
+                'remaining' => max(0, $cap - $byProduct[$product->id]),
             ])
             ->sortBy([['qty', 'desc'], ['name', 'asc']])
             ->values();
 
         return response()->json([
-            ...$limits->status($user),
+            ...$limits->policy(),
+            'used' => array_sum($byProduct),
             'in_cart' => array_sum($cart->items($user)),
             'days_to_reset' => (int) ceil(now()->diffInDays($limits->resetsOn($year), true)),
             'brands' => $rows

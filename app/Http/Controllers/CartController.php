@@ -31,7 +31,8 @@ class CartController extends Controller
         $user = $this->employee();
         $product = Product::query()->findOrFail((int) $request->validated('product_id'));
 
-        $this->limits->ensureWithin($user, array_sum($this->cart->items($user)) + 1);
+        $current = $this->cart->items($user);
+        $this->limits->ensureProducts($user, [$product->id => ($current[$product->id] ?? 0) + 1]);
         $items = $this->cart->add($user, $product->id);
 
         return response()->json($this->presenter->present($user, $items));
@@ -43,8 +44,7 @@ class CartController extends Controller
         $qty = (int) $request->validated('qty');
 
         if ($qty > 0) {
-            $current = $this->cart->items($user);
-            $this->limits->ensureWithin($user, array_sum($current) - ($current[$product->id] ?? 0) + $qty);
+            $this->limits->ensureProducts($user, [$product->id => $qty]);
         }
 
         $items = $this->cart->setQty($user, $product->id, $qty);

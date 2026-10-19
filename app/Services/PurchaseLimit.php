@@ -34,16 +34,15 @@ class PurchaseLimit
     }
 
     /**
-     * Pieces bought in the calendar year (WIB) across every brand, excluding cancelled orders.
+     * @return array{total: int, year: int, resets_label: string}
      */
-    public function used(User $user, ?int $year = null): int
+    public function policy(): array
     {
-        return (int) $this->purchases($user, $year)->sum('claim_items.quantity');
-    }
-
-    public function remaining(User $user): int
-    {
-        return max(0, $this->yearly() - $this->used($user));
+        return [
+            'total' => $this->yearly(),
+            'year' => $this->currentYear(),
+            'resets_label' => $this->resetsLabel(),
+        ];
     }
 
     /**
@@ -60,34 +59,26 @@ class PurchaseLimit
     }
 
     /**
-     * @return array{total: int, used: int, remaining: int, year: int, resets_label: string}
+     * @param  array<int, int>  $quantities  product id => pieces requested on top of what was already bought
      */
-    public function status(User $user): array
+    public function ensureProducts(User $user, array $quantities): void
     {
-        $used = $this->used($user);
+        $used = $this->usedByProduct($user);
+        $cap = $this->yearly();
 
-        return [
-            'total' => $this->yearly(),
-            'used' => $used,
-            'remaining' => max(0, $this->yearly() - $used),
-            'year' => $this->currentYear(),
-            'resets_label' => $this->resetsLabel(),
-        ];
-    }
+        foreach ($quantities as $productId => $pieces) {
+            $remaining = max(0, $cap - ($used[(int) $productId] ?? 0));
 
-    public function ensureWithin(User $user, int $pieces): void
-    {
-        $remaining = $this->remaining($user);
+            if ((int) $pieces <= $remaining) {
+                continue;
+            }
 
-        if ($pieces <= $remaining) {
-            return;
+            throw ValidationException::withMessages([
+                'limit' => $remaining > 0
+                    ? "Sisa kuota produk ini tahun ini {$remaining} pcs (maks. {$cap} pcs per SKU per tahun)."
+                    : "Kuota produk ini tahun ini sudah habis ({$cap} pcs). Kuota reset otomatis {$this->resetsLabel()}.",
+            ]);
         }
-
-        throw ValidationException::withMessages([
-            'limit' => $remaining > 0
-                ? "Sisa kuota pembelian tahun ini {$remaining} pcs (maks. {$this->yearly()} pcs per tahun untuk semua brand)."
-                : "Kuota pembelian tahun ini sudah habis ({$this->yearly()} pcs). Kuota reset otomatis {$this->resetsLabel()}.",
-        ]);
     }
 
     /**

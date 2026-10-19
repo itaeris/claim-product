@@ -52,7 +52,7 @@ class SubmitClaim
                 $this->emptyCart();
             }
 
-            $this->limits->ensureWithin($user, array_sum($quantities));
+            $this->limits->ensureProducts($user, $quantities);
 
             $isDelivery = $fulfillment === 'delivery';
             $address = $isDelivery

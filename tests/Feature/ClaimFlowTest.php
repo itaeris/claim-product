@@ -118,7 +118,7 @@ class ClaimFlowTest extends TestCase
         $this->assertDatabaseHas('claims', ['fulfillment' => 'pickup', 'shipping_fee' => 0, 'shipping_address' => null]);
     }
 
-    public function test_one_yearly_quota_of_five_pieces_is_shared_by_every_brand(): void
+    public function test_each_sku_keeps_its_own_yearly_limit_of_five(): void
     {
         $puff = $this->product('Cloud Control Puff');
         $legging = $this->product('Euphoric Compression Legging');
@@ -132,40 +132,37 @@ class ClaimFlowTest extends TestCase
         $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 2])
             ->assertOk()
             ->assertJsonPath('limit.total', 5)
-            ->assertJsonPath('limit.remaining', 5);
-        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 4])
+            ->assertJsonPath('items.0.purchased', 0)
+            ->assertJsonPath('items.0.sku_remaining', 5);
+        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 5])->assertOk();
+        $this->postJson('/api/claims')->assertCreated();
+
+        $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 3])
+            ->assertOk()
+            ->assertJsonPath('items.0.purchased', 2)
+            ->assertJsonPath('items.0.sku_remaining', 3);
+        $this->patchJson('/api/cart/items/'.$puff->id, ['qty' => 4])
             ->assertStatus(422)
             ->assertJsonValidationErrors('limit');
-        $this->patchJson('/api/cart/items/'.$legging->id, ['qty' => 1])->assertOk();
         $this->postJson('/api/claims')->assertCreated();
 
         $this->postJson('/api/cart/items', ['product_id' => $puff->id])
-            ->assertOk()
-            ->assertJsonPath('limit.used', 3)
-            ->assertJsonPath('limit.remaining', 2);
-        $this->postJson('/api/cart/items', ['product_id' => $puff->id])->assertOk();
-        $this->postJson('/api/cart/items', ['product_id' => $brushes->id])
             ->assertStatus(422)
-            ->assertJsonValidationErrors('limit');
+            ->assertJsonPath('errors.limit.0', 'Kuota produk ini tahun ini sudah habis (5 pcs). Kuota reset otomatis 1 Januari 2027.');
+        $this->postJson('/api/cart/items', ['product_id' => $brushes->id])->assertOk();
 
         $this->getJson('/api/limits')
             ->assertOk()
             ->assertJsonPath('year', 2026)
             ->assertJsonPath('total', 5)
-            ->assertJsonPath('used', 3)
-            ->assertJsonPath('remaining', 2)
-            ->assertJsonPath('in_cart', 2)
+            ->assertJsonPath('used', 10)
+            ->assertJsonPath('in_cart', 1)
             ->assertJsonPath('resets_label', '1 Januari 2027')
-            ->assertJsonPath('brands.0.short', 'AB')
-            ->assertJsonPath('brands.0.qty', 2)
-            ->assertJsonPath('brands.1.short', 'K+A')
             ->assertJsonPath('products.0.name', 'Cloud Control Puff')
-            ->assertJsonPath('products.0.qty', 2);
-
-        $this->postJson('/api/claims')->assertCreated();
-        $this->postJson('/api/cart/items', ['product_id' => $legging->id])
-            ->assertStatus(422)
-            ->assertJsonPath('errors.limit.0', 'Kuota pembelian tahun ini sudah habis (5 pcs). Kuota reset otomatis 1 Januari 2027.');
+            ->assertJsonPath('products.0.qty', 5)
+            ->assertJsonPath('products.0.remaining', 0)
+            ->assertJsonPath('products.1.name', 'Euphoric Compression Legging')
+            ->assertJsonPath('products.1.qty', 5);
 
         $this->travelTo('2026-12-31 16:59:00');
         $this->postJson('/api/cart/items', ['product_id' => $puff->id])->assertStatus(422);
@@ -175,8 +172,7 @@ class ClaimFlowTest extends TestCase
         $this->getJson('/api/limits')
             ->assertOk()
             ->assertJsonPath('year', 2027)
-            ->assertJsonPath('used', 0)
-            ->assertJsonPath('remaining', 5);
+            ->assertJsonPath('used', 0);
     }
 
     public function test_payment_flow_handles_underpayment_overpayment_and_delivery(): void

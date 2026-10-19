@@ -281,6 +281,9 @@ h1 { font-family: Poppins, sans-serif; font-size: clamp(28px, 3vw, 42px); letter
 .product-info { padding: 15px; }
 .product-cat { color: var(--green-2); font-size: 10px; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; }
 .product-name { margin: 7px 0 12px; height: 38px; font-size: 14px; font-weight: 600; line-height: 1.35; overflow: hidden; }
+.sku-left { display: block; margin: -6px 0 10px; font-size: 11px; font-weight: 700; color: var(--muted); }
+.sku-left.full { color: #b8611f; }
+.claim-item .sku-left { margin: 2px 0 0; }
 .price-row { display: flex; align-items: end; justify-content: space-between; gap: 8px; }
 .price small { display: block; text-decoration: line-through; color: #9ca6a1; font-size: 10px; }
 .price strong { display: block; font-family: Poppins, sans-serif; font-size: 15px; color: var(--green); margin-top: 2px; }
@@ -565,6 +568,19 @@ a.brandmark, a.text-btn, a.icon-btn, a.admin-tab { color: inherit; text-decorati
 .chip-btn svg { width: 14px; height: 14px; flex: 0 0 auto; }
 .chip-btn.muted { color: #5f6d66; }
 .row-actions button.danger { background: #f8efec; color: #9a4332; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; }
+.pager-info { font-size: 12px; color: var(--muted); font-weight: 600; }
+.pager-pages { display: flex; align-items: center; gap: 4px; }
+.pager-pages button {
+    min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 9px;
+    background: white; color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer;
+    display: inline-grid; place-items: center;
+}
+.pager-pages button:hover:not(:disabled):not(.active) { border-color: #cfd8d1; background: #f6f8f6; }
+.pager-pages button.active { background: var(--green); border-color: var(--green); color: white; }
+.pager-pages button:disabled { opacity: .4; cursor: default; }
+.pager-pages svg { width: 16px; height: 16px; }
+.pager-gap { min-width: 20px; text-align: center; color: var(--muted); font-size: 12px; }
 .editor { padding: 18px; }
 .editor h2 { font-family: Poppins, sans-serif; font-size: 18px; margin: 0; }
 .editor-actions { display: flex; gap: 8px; margin-top: 16px; }
@@ -688,6 +704,7 @@ a.ghost-btn { display: inline-flex; align-items: center; text-decoration: none; 
 .quota-pill.empty .quota-text strong { color: #b8611f; }
 .limit-bars .product-cell strong { display: block; font-size: 13px; }
 .limit-meter { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
+.limit-bars .limit-meter { max-width: 140px; margin-top: 8px; }
 .limit-meter span { height: 12px; border-radius: 4px; background: #e7ebe7; }
 .limit-meter span.on { background: var(--green-2); }
 .limit-meter span.cart { background: #9cc5b1; }

@@ -28,6 +28,21 @@ export function clearQuota() {
     quota.value = null;
 }
 
+export function skuQuota(limit, productId, cartQty = 0) {
+    if (!limit) {
+        return null;
+    }
+
+    const purchased = Number(limit.by_product?.[productId] ?? 0);
+    const total = limit.total;
+
+    return {
+        total,
+        purchased,
+        left: Math.max(0, total - purchased - cartQty),
+    };
+}
+
 const brandColors = {
     AB: '#b8925a',
     FTI: '#2f7258',

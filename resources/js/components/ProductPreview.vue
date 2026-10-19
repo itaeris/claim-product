@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { rupiah } from '../format';
+import { skuQuota } from '../quota';
 import ProductPhoto from './ProductPhoto.vue';
 
 const props = defineProps({
@@ -8,9 +9,9 @@ const props = defineProps({
         type: Object,
         default: null,
     },
-    quotaLeft: {
-        type: Number,
-        default: null,
+    cartItems: {
+        type: Array,
+        default: () => [],
     },
     limit: {
         type: Object,
@@ -21,16 +22,20 @@ const props = defineProps({
 const emit = defineEmits(['close', 'add']);
 const closeButton = ref(null);
 
-const quotaFull = computed(() => props.quotaLeft === 0);
+const sku = computed(() => skuQuota(
+    props.limit,
+    props.product?.id,
+    props.cartItems.find((item) => item.product_id === props.product?.id)?.qty ?? 0,
+));
 
 function quotaCell(index) {
-    const used = props.limit?.used ?? 0;
+    const purchased = sku.value?.purchased ?? 0;
 
-    if (index <= used) {
+    if (index <= purchased) {
         return 'on';
     }
 
-    return index <= (props.limit?.total ?? 0) - (props.quotaLeft ?? 0) ? 'cart' : '';
+    return index <= (sku.value?.total ?? 0) - (sku.value?.left ?? 0) ? 'cart' : '';
 }
 
 const saving = computed(() => Math.max(0, (props.product?.price ?? 0) - (props.product?.claim_price ?? 0)));
@@ -92,15 +97,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <dd>{{ rupiah(product.claim_price) }}</dd>
                         </div>
                     </dl>
-                    <div v-if="limit" class="preview-quota">
-                        <div class="limit-meter" :class="{ full: quotaFull }" aria-hidden="true">
-                            <span v-for="cell in limit.total" :key="cell" :class="quotaCell(cell)"></span>
+                    <div v-if="sku" class="preview-quota">
+                        <div class="limit-meter" :class="{ full: sku.left === 0 }" aria-hidden="true">
+                            <span v-for="cell in sku.total" :key="cell" :class="quotaCell(cell)"></span>
                         </div>
-                        <span>Sisa kuota kamu <strong>{{ quotaLeft }}/{{ limit.total }} pcs</strong> untuk semua brand · reset {{ limit.resets_label }}</span>
+                        <span>Sisa kuota produk ini <strong>{{ sku.left }}/{{ sku.total }} pcs</strong> tahun ini · reset {{ limit.resets_label }}</span>
                     </div>
                     <p class="preview-note">Invoice dari {{ product.company || product.brand }}</p>
-                    <button class="claim-btn preview-add" type="button" :disabled="quotaFull" @click="emit('add', product)">
-                        {{ quotaFull ? 'Kuota tahun ini habis' : 'Tambahkan ke keranjang' }}
+                    <button class="claim-btn preview-add" type="button" :disabled="sku?.left === 0" @click="emit('add', product)">
+                        {{ sku?.left === 0 ? 'Kuota produk ini habis' : 'Tambahkan ke keranjang' }}
                     </button>
                 </div>
             </article>

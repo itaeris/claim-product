@@ -63,7 +63,7 @@ Seeder juga mengisi tiga brand beserta ketentuannya, produk, dan periode Oktober
 | From This Island | PT Inovasi Alam Nusantara    | 30%             |
 | KIN + ALLY       | PT Kinerja Inovasi Nusantara | 30%             |
 
-Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan punya satu kuota 5 pcs per tahun yang dipakai bersama untuk semua brand dan produk, jadi barang yang sama boleh dibeli berulang selama kuotanya masih ada. Kuota reset otomatis setiap 1 Januari pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
+Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap produk (SKU) punya kuota sendiri 5 pcs per tahun, jadi membeli satu produk tidak mengurangi kuota produk lain. Barang yang sama boleh dibeli berulang selama kuota SKU itu masih ada. Kuota reset otomatis setiap 1 Januari pukul 00.00 WIB, tanpa pengajuan. Diskon, ongkir, dan rekening tujuan tiap brand diatur admin di `/kelola/diskon`. Rekening masih kosong setelah migrasi, jadi isi dulu sebelum dipakai.
 
 ## Alur pesanan
 
@@ -75,7 +75,7 @@ Berlaku untuk karyawan tetap, kontrak, daily worker, dan intern. Setiap karyawan
 6. Gudang menyiapkan barang, lalu mengirim (dengan nomor resi opsional) atau menandai siap diambil.
 7. Karyawan menekan "Barang sudah diterima", atau admin menandai selesai.
 
-Sisa kuota tampil di header (5 balok: terpakai, di keranjang, dan sisa). Halaman Riwayat Produk menampilkan grafik kuota per brand, tanggal reset, dan semua produk yang pernah dipesan. Tombol tambah di katalog dan keranjang mati begitu kuota habis, termasuk barang yang masih di keranjang. Pesanan yang dibatalkan tidak dihitung ke kuota.
+Sisa kuota tiap produk tampil di detail produk dan di keranjang. Halaman Riwayat Produk menampilkan pemakaian per SKU, tanggal reset, dan semua produk yang pernah dipesan. Tombol tambah mati begitu kuota SKU itu habis, termasuk barang yang masih di keranjang. Pesanan yang dibatalkan tidak dihitung ke kuota.
 
 Invoice bisa dicetak atau disimpan sebagai PDF di `/invoices/{id}` setelah stok dicek. Bukti transfer disimpan di disk privat dan hanya bisa dibuka pemilik pesanan atau admin.
 
@@ -89,7 +89,7 @@ Karyawan mendapat notifikasi di lonceng header dan email di setiap perubahan sta
 | `LARK_WEBHOOK_SECRET`      | Signature secret bot, jika diaktifkan di Lark.     |
 | `CLAIM_NOTIFY_MAIL`        | Email ke karyawan (default `true`).                |
 | `CLAIM_NOTIFY_OPS_MAIL`    | Email ke admin (default `true`).                   |
-| `CLAIM_YEARLY_LIMIT`       | Kuota pcs per tahun, semua brand (default `5`).    |
+| `CLAIM_YEARLY_LIMIT`       | Kuota pcs per SKU per tahun (default `5`).          |
 | `CLAIM_WAREHOUSE_ADDRESS`  | Alamat pickup yang tampil di keranjang dan invoice. |
 
 Email memakai pengaturan `MAIL_*` biasa. Dengan `MAIL_MAILER=log`, email ditulis ke `storage/logs/laravel.log`.
@@ -103,7 +103,7 @@ User bisa masuk dengan password atau Google. Login Google hanya berhasil jika em
 | `/login`           | Tamu                                       |
 | `/`                | Katalog dan keranjang                      |
 | `/progres`         | Progres pesanan sendiri                    |
-| `/profile/riwayat`    | Profil: grafik kuota dan riwayat produk |
+| `/profile/riwayat`    | Profil: kuota per produk dan riwayat |
 | `/profile/pengaturan` | Profil: data akun dan ganti password    |
 | `/kelola/klaim`    | Admin: pesanan per tahap                   |
 | `/kelola/produk`   | Admin                                      |

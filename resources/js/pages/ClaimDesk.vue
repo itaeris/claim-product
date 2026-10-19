@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted, provide, reactive, ref, watch } from 'vue';
+import { computed, onMounted, provide, reactive, ref } from 'vue';
 import { api } from '../api';
-import { loadQuota, quota } from '../quota';
+import { loadQuota } from '../quota';
 import { useToast } from '../toast';
 import AppHeader from '../components/AppHeader.vue';
 import ClaimSidebar from '../components/ClaimSidebar.vue';
@@ -25,14 +25,6 @@ const submitting = ref(false);
 const cartOpen = ref(false);
 const fulfillment = ref('pickup');
 const address = ref('');
-const quotaLeft = computed(() => (cart.value.limit ? Math.max(0, cart.value.limit.remaining - cart.value.count) : null));
-
-watch(cart, ({ limit, count }) => {
-    if (limit && quota.value) {
-        Object.assign(quota.value, { total: limit.total, used: limit.used, remaining: limit.remaining, in_cart: count });
-    }
-});
-
 const claimCart = reactive({
     count: computed(() => cart.value.count),
     openCart() {
@@ -133,7 +125,7 @@ function submitClaim() {
                 <ProductCatalog
                     v-if="catalog"
                     :brands="catalog.brands"
-                    :quota-left="quotaLeft"
+                    :cart-items="cart.items"
                     :limit="cart.limit"
                     @add="addProduct"
                 />
