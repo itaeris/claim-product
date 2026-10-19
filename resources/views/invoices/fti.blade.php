@@ -21,15 +21,16 @@
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; background: #eef0ec; color: #1d1d1d; font: 13px/1.45 Poppins, sans-serif; }
-        .toolbar { max-width: 860px; margin: 24px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
+        .toolbar { max-width: 794px; margin: 24px auto 0; display: flex; justify-content: flex-end; gap: 8px; }
         .toolbar button, .toolbar a {
             border: 1px solid #d5dbd6; background: #fff; color: #1f2a24; border-radius: 999px; padding: 8px 18px;
             font: 600 13px Poppins, sans-serif; cursor: pointer; text-decoration: none;
         }
         .toolbar button { background: #174f3b; border-color: #174f3b; color: #fff; }
-        .sheet { width: 860px; margin: 16px auto 40px; background: #fff; border-top: 6px solid #1f4e8c; padding: 28px 30px 40px; box-shadow: 0 10px 30px rgba(20, 40, 30, .1); }
+        .sheet { width: 794px; min-height: 1123px; margin: 16px auto 40px; background: #fff; border-top: 6px solid #1f4e8c; padding: 36px 40px 48px; box-shadow: 0 10px 30px rgba(20, 40, 30, .1); }
 
-        .head { display: grid; grid-template-columns: 96px 1fr auto; gap: 14px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #d9d9d9; }
+        .head { display: flex; align-items: flex-start; gap: 28px; padding-bottom: 12px; border-bottom: 1px solid #d9d9d9; }
+        .identity { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; }
         .logo { text-align: center; }
         .logo img { width: 44px; height: auto; display: block; margin: 0 auto -4px; }
         .logo span { font: 600 8px Lora, serif; letter-spacing: .08em; }
@@ -37,7 +38,7 @@
         .brand div { font-size: 12px; }
         .brand a { color: #1155cc; }
         .tag { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: 3px; background: #1e7b34; color: #fff; font-size: 10px; font-weight: 600; }
-        .title { text-align: right; }
+        .title { text-align: left; }
         .title h2 { margin: 0; font-size: 40px; font-weight: 700; letter-spacing: .01em; }
         .title div { font-size: 11px; color: #555; }
 
@@ -49,7 +50,7 @@
         table.items { width: 100%; margin-top: 26px; border-collapse: separate; border-spacing: 0 2px; }
         .items th { background: #e0e0e0; font-size: 13px; font-weight: 600; padding: 4px 8px; text-align: center; }
         .items td { background: #f3f3f3; padding: 6px 8px; text-align: right; vertical-align: bottom; font-size: 12px; }
-        .items td.product { text-align: left; background: #ececec; width: 290px; }
+        .items td.product { text-align: left; background: #ececec; width: 28%; }
         .items td.center { text-align: center; }
 
         .summary { width: 446px; margin-left: auto; margin-top: 4px; }
@@ -70,11 +71,11 @@
             @page { size: A4; margin: 10mm; }
             body { background: #fff; }
             .toolbar { display: none; }
-            .sheet { width: auto; margin: 0; box-shadow: none; }
+            .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
             .sheet, .tag, .items th, .items td, .summary div, .terms .label, .terms .shade { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
-        @media (max-width: 880px) {
-            .sheet { width: auto; margin: 12px; overflow-x: auto; }
+        @media (max-width: 820px) {
+            .sheet { width: auto; min-height: 0; margin: 12px; padding: 24px; overflow-x: auto; }
         }
     </style>
 </head>
@@ -86,27 +87,29 @@
 
     <main class="sheet">
         <div class="head">
-            <div class="logo">
-                <img src="/logo-brand/FTI.png" alt="">
-                <span>{{ strtoupper($brand?->name ?? '') }}</span>
-            </div>
-            <div class="brand">
-                <h1>{{ strtoupper($brand?->name ?? '') }}</h1>
-                @if ($brand?->contact_phone)
-                    <div>{{ $brand->contact_phone }}</div>
-                @endif
-                @if ($brand?->contact_email)
-                    <div>{{ $brand->contact_email }}</div>
-                @endif
-                @if ($website)
-                    <div><a href="{{ $websiteUrl }}" target="_blank" rel="noopener">{{ $website }}</a></div>
-                @endif
-                <span class="tag">{{ $brand?->name }}</span>
-            </div>
             <div class="title">
                 <h2>INVOICE</h2>
                 <div>{{ $claim->invoice_number }}</div>
                 <div>{{ $issuedLabel }}</div>
+            </div>
+            <div class="identity">
+                <div class="logo">
+                    <img src="/logo-brand/FTI.png" alt="">
+                    <span>{{ strtoupper($brand?->name ?? '') }}</span>
+                </div>
+                <div class="brand">
+                    <h1>{{ strtoupper($brand?->name ?? '') }}</h1>
+                    @if ($brand?->contact_phone)
+                        <div>{{ $brand->contact_phone }}</div>
+                    @endif
+                    @if ($brand?->contact_email)
+                        <div>{{ $brand->contact_email }}</div>
+                    @endif
+                    @if ($website)
+                        <div><a href="{{ $websiteUrl }}" target="_blank" rel="noopener">{{ $website }}</a></div>
+                    @endif
+                    <span class="tag">{{ $brand?->name }}</span>
+                </div>
             </div>
         </div>
 

@@ -456,10 +456,10 @@
     .claim-card-actions:empty { @apply hidden; }
     a.ghost-btn { @apply inline-flex items-center no-underline; }
     .notify-wrap { @apply relative; }
-    .notify-dropdown { @apply fixed z-80 max-h-[440px] w-[min(360px,calc(100vw-24px))] overflow-auto rounded-2xl border border-line bg-white p-1.5 shadow-card; }
-    .notify-head { @apply px-3 pt-2.5 pb-1.5 text-sm font-bold; }
+    .notify-dropdown { @apply fixed z-80 flex max-h-[440px] w-[min(360px,calc(100vw-24px))] flex-col gap-2 overflow-auto rounded-2xl border border-line bg-white p-3 shadow-card; }
+    .notify-head { @apply px-1 pt-1 pb-0.5 text-sm font-bold; }
     .notify-empty { @apply m-0 p-3 text-[13px] text-muted; }
-    .notify-item { @apply grid w-full cursor-pointer gap-0.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left font-[inherit] text-ink; }
+    .notify-item { @apply grid w-full cursor-pointer gap-1.5 rounded-xl border-0 bg-transparent px-4 py-3.5 text-left font-[inherit] text-ink; }
     .notify-item:hover { @apply bg-[#f3f6f3]; }
     .notify-item.unread { @apply bg-mint; }
     .notify-item strong { @apply text-[13px]; }
